@@ -5,6 +5,7 @@
     Area:       Libraries    
     Part:       Utils
     Module:     morexsl.xsl    
+    Usage:      Library
     Func:       Performing frequently used tests and output content 
                 generation activities 
 -->    
