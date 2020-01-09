@@ -26,7 +26,7 @@
     <!-- 
         Assembling an absolute URI 
     -->
-    <xsl:function name="cpm:pathuri.absoluteURI">
+    <xsl:function name="cpm:uri.absolute">
         
         <!-- E.g. file:/c:/foo/bar or file:/c:/foo/bar/ -->
         <!-- A relative URI is also allowed here -->
@@ -49,7 +49,7 @@
     <!-- 
         Assembling a relative URI
     -->
-    <xsl:function name="cpm:pathuri.relativeURI">
+    <xsl:function name="cpm:uri.relative">
         
         <xsl:param name="strBaseURI"/>
         

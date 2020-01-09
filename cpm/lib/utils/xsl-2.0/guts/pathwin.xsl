@@ -29,16 +29,16 @@
     <!-- 
         Converting a Windows path to an URI
     -->
-    <xsl:template match="*[lower-case(@os) = 'windows']" mode="cpm.pathuri.path2uri"> </xsl:template>
+    <xsl:template match="*[lower-case(@os) = 'windows']" mode="cpm.path.2uri"> </xsl:template>
     
     
     <!-- 
         Converting an URI to a Windows path
     -->
-    <xsl:template match="*[lower-case(@os) = 'windows']" mode="cpm.pathuri.uri2path">
+    <xsl:template match="*[lower-case(@os) = 'windows']" mode="cpm.uri.2path">
         
         <xsl:variable name="strRawPath">
-            <xsl:value-of select="cpm:pathuri.localFile(@uri)"/>
+            <xsl:value-of select="cpm:uri.localFile(@uri)"/>
         </xsl:variable>
         
         <xsl:value-of select="translate($strRawPath, '/', '\')"/>

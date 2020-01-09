@@ -10,44 +10,48 @@
 -->    
 <!-- * * ** *** ***** ******** ************* ********************* -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-    xmlns:xs="http://www.w3.org/2001/XMLSchema"
-    xmlns:cpm="http://cpmonster.com/xmlns/cpm"
-    exclude-result-prefixes="cpm xs"
-    version="2.0">
-    
+    xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:cpm="http://cpmonster.com/xmlns/cpm"
+    exclude-result-prefixes="cpm xs" version="2.0">
+
     <!-- 
         Modules 
     -->
-    
+
     <!-- Extra string functions -->
     <xsl:import href="../morestr.xsl"/>
     
+    <!-- Regular expressions for parsing URIs-->
+    <xsl:import href="uriregexp.xsl"/>
+
+
     
+    
+
     <!-- 
         Representing an URI as a sequence of named elements
     -->
-    <xsl:function name="cpm:pathuri.parseURI">
-        
+    <xsl:function name="cpm:uri.parse">
+
         <xsl:param name="strURI"/>
-        
-        
+
+
         <!-- A protocol (mandatory for an URI) -->
-        
+
         <xsl:variable name="strProtocol">
             <xsl:value-of select="substring-before($strURI, ':')"/>
         </xsl:variable>
-        
+
         <xsl:variable name="strRemain1">
             <xsl:value-of select="substring-after($strURI, ':')"/>
         </xsl:variable>
-        
-        
+
+
         <!-- A host and a port -->
-        
+
         <xsl:variable name="strHPRegexp">
             <xsl:text><![CDATA[^//([A-Za-z\.\-_\d]+)(:\d+)?]]></xsl:text>
         </xsl:variable>
-        
+
         <xsl:variable name="strHP">
             <xsl:choose>
                 <xsl:when test="matches($strRemain1, concat($strHPRegexp, '/'))">
@@ -64,7 +68,7 @@
                 </xsl:when>
             </xsl:choose>
         </xsl:variable>
-        
+
         <xsl:variable name="strHost">
             <xsl:if test="$strHP != ''">
                 <xsl:choose>
@@ -77,13 +81,13 @@
                 </xsl:choose>
             </xsl:if>
         </xsl:variable>
-        
+
         <xsl:variable name="strPort">
             <xsl:if test="$strHP != '' and contains($strHP, ':')">
                 <xsl:value-of select="substring-after($strHP, ':')"/>
             </xsl:if>
         </xsl:variable>
-        
+
         <xsl:variable name="strRemain2">
             <xsl:choose>
                 <xsl:when test="$strHP != ''">
@@ -103,10 +107,10 @@
                 </xsl:otherwise>
             </xsl:choose>
         </xsl:variable>
-        
-        
+
+
         <!-- Drive, folders, and file -->
-        
+
         <xsl:variable name="strRawLocalFile">
             <xsl:choose>
                 <xsl:when test="contains($strRemain2, '?')">
@@ -120,21 +124,21 @@
                 </xsl:otherwise>
             </xsl:choose>
         </xsl:variable>
-        
+
         <xsl:variable name="strLocalFile" select="cpm:morestr.dockHead($strRawLocalFile, '/')"/>
-        
-        
+
+
         <!-- Drive -->
-        
+
         <xsl:variable name="strDrive">
             <xsl:if test="contains($strLocalFile, ':')">
                 <xsl:value-of select="substring-before($strLocalFile, ':')"/>
             </xsl:if>
         </xsl:variable>
-        
-        
+
+
         <!-- Folders and a file -->
-        
+
         <xsl:variable name="strRawRemain3">
             <xsl:choose>
                 <xsl:when test="contains($strLocalFile, ':')">
@@ -145,18 +149,43 @@
                 </xsl:otherwise>
             </xsl:choose>
         </xsl:variable>
-        
+
         <xsl:variable name="strRemain3">
             <xsl:value-of select="cpm:morestr.dockHead($strRawRemain3, '/')"/>
         </xsl:variable>
-        
-        <xsl:variable name="seqFiles" as="xs:string*">
+
+        <xsl:variable name="seqRawFiles" as="xs:string*">
             <xsl:copy-of select="tokenize($strRemain3, '/')"/>
         </xsl:variable>
-        
-        
+
+        <xsl:variable name="seqFolders" as="xs:string*">
+            <xsl:copy-of select="$seqRawFiles[position() != last()]"/>
+        </xsl:variable>
+
+        <xsl:variable name="strFile">
+            <xsl:value-of select="$seqRawFiles[last()]"/>
+        </xsl:variable>
+
+        <xsl:variable name="strFileNameBase">
+            <xsl:choose>
+                <xsl:when test="contains($strFile, '.')">
+                    <xsl:value-of select="cpm:morestr.reverseAfter($strFile, '.')"/>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:value-of select="$strFile"/>
+                </xsl:otherwise>
+            </xsl:choose>
+        </xsl:variable>
+
+        <xsl:variable name="strFileNameType">
+            <xsl:if test="contains($strFile, '.')">
+                <xsl:value-of select="cpm:morestr.reverseBefore($strFile, '.')"/>
+            </xsl:if>
+        </xsl:variable>
+
+
         <!-- Parameters -->
-        
+
         <xsl:variable name="seqParams" as="xs:string*">
             <xsl:if test="contains($strRemain2, '?')">
                 <xsl:variable name="strParams">
@@ -165,25 +194,25 @@
                 <xsl:copy-of select="tokenize($strParams,'&amp;')"/>
             </xsl:if>
         </xsl:variable>
-        
-        
+
+
         <!-- Anchor -->
-        
+
         <xsl:variable name="strAnchor">
             <xsl:if test="contains($strRemain2, '#')">
                 <xsl:value-of select="substring-after($strRemain2, '#')"/>
             </xsl:if>
         </xsl:variable>
-        
-        
+
+
         <!-- Representing the URI as a sequence of XML elements -->
-        
+
         <uri source="{$strURI}">
-            
+
             <protocol>
                 <xsl:value-of select="$strProtocol"/>
             </protocol>
-            
+
             <xsl:if test="$strHost != ''">
                 <host>
                     <xsl:value-of select="$strHost"/>
@@ -194,37 +223,46 @@
                     </port>
                 </xsl:if>
             </xsl:if>
-            
+
             <xsl:if test="$strDrive != ''">
                 <drive>
                     <xsl:value-of select="$strDrive"/>
                 </drive>
             </xsl:if>
-            
-            <xsl:for-each select="$seqFiles[position() != last()]">
+
+            <xsl:for-each select="$seqFolders">
                 <folder>
                     <xsl:value-of select="."/>
                 </folder>
             </xsl:for-each>
-            
-            <xsl:if test="count($seqFiles) != 0">
+
+            <xsl:if test="$strFile != ''">
                 <file>
-                    <xsl:value-of select="$seqFiles[position() = last()]"/>
+                    <xsl:if test="$strFileNameBase != ''">
+                        <base>
+                            <xsl:value-of select="$strFileNameBase"/>
+                        </base>
+                    </xsl:if>
+                    <xsl:if test="$strFileNameType != ''">
+                        <type>
+                            <xsl:value-of select="$strFileNameType"/>
+                        </type>
+                    </xsl:if>
                 </file>
             </xsl:if>
-            
+
             <xsl:for-each select="$seqParams">
                 <param name="{substring-before(.,'=')}" value="{substring-after(.,'=')}"/>
             </xsl:for-each>
-            
+
             <xsl:if test="$strAnchor != ''">
                 <anchor>
                     <xsl:value-of select="$strAnchor"/>
                 </anchor>
             </xsl:if>
-            
+
         </uri>
-        
+
     </xsl:function>
-    
+
 </xsl:stylesheet>

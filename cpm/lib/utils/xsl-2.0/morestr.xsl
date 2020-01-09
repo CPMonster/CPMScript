@@ -57,11 +57,29 @@
         <xsl:value-of select="cpm:morestr.dockTail($strRemain, $strRSep)"/>
     </xsl:function>
 
+    <!-- Splitting a string using a plain separator (not a regexp) -->
+    <xsl:function name="cpm:morestr.plainTokenize" as="xs:string*">
+        <xsl:param name="strRemain"/>
+        <xsl:param name="strSep"/>
+        <xsl:choose>
+            <xsl:when test="contains($strRemain, $strSep)">
+                <xsl:value-of select="substring-before($strRemain, $strSep)"/>
+                <xsl:variable name="strNewRemain">
+                    <xsl:value-of select="substring-after($strRemain, $strSep)"/>
+                </xsl:variable>
+                <xsl:copy-of select="cpm:morestr.plainTokenize($strNewRemain, $strSep)"/>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="$strRemain"/>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:function>
+
 
     <!-- 
         Combining sunstring-after with substring-before 
     -->
-    
+
     <!-- Left and right delimiters are both mandatory -->
     <xsl:function name="cpm:morestr.afterBefore">
         <xsl:param name="strItem"/>
@@ -85,6 +103,30 @@
                 <xsl:value-of select="$strTmpAfter"/>
             </xsl:otherwise>
         </xsl:choose>
+    </xsl:function>
+
+    <!-- Extracting a substring after the last separator occurence -->
+    <xsl:function name="cpm:morestr.reverseBefore">
+        <xsl:param name="strItem"/>
+        <xsl:param name="strSep"/>
+        <xsl:if test="contains($strItem, $strSep)">
+            <xsl:variable name="seqItems" as="xs:string*">
+                <xsl:copy-of select="cpm:morestr.plainTokenize($strItem, $strSep)"/>
+            </xsl:variable>
+            <xsl:value-of select="$seqItems[last()]"/>
+        </xsl:if>
+    </xsl:function>
+
+    <!-- Extracting a substring before the last separator occurence -->
+    <xsl:function name="cpm:morestr.reverseAfter">
+        <xsl:param name="strItem"/>
+        <xsl:param name="strSep"/>
+        <xsl:if test="contains($strItem, $strSep)">
+            <xsl:variable name="seqItems" as="xs:string*">
+                <xsl:copy-of select="cpm:morestr.plainTokenize($strItem, $strSep)"/>
+            </xsl:variable>
+            <xsl:value-of select="string-join($seqItems[position() != last()], $strSep)"/>
+        </xsl:if>
     </xsl:function>
 
 

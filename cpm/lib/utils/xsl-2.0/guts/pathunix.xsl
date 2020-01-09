@@ -29,13 +29,13 @@
     <!--  
         Converting a Windows path to an URI
     -->
-    <xsl:template match="*[lower-case(@os) = ('mac', 'linux', 'unix')]" mode="cpm.pathuri.uri2path"> </xsl:template>
+    <xsl:template match="*[lower-case(@os) = ('mac', 'linux', 'unix')]" mode="cpm.path.2uri"> </xsl:template>
     
     
     <!--
         Converting an URI to a Unix path
     -->
-    <xsl:template match="*[lower-case(@os) = ('mac', 'linux', 'unix')]" mode="cpm.pathuri.path2uri"> </xsl:template>
+    <xsl:template match="*[lower-case(@os) = ('mac', 'linux', 'unix')]" mode="cpm.uri.2path"> </xsl:template>
           
     
 </xsl:stylesheet>

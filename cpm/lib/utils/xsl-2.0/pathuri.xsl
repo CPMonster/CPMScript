@@ -44,23 +44,23 @@
     -->
 
     <!-- A path to an URI -->
-    <xsl:function name="cpm:pathuri.path2uri">
+    <xsl:function name="cpm:path.2uri">
         <xsl:param name="strPath"/>
         <xsl:param name="strSourceOS"/>
         <xsl:variable name="xmlData">
             <data os="{$strSourceOS}" path="{$strPath}"/>
         </xsl:variable>
-        <xsl:apply-templates select="$xmlData/data" mode="cpm.pathuri.path2uri"/>
+        <xsl:apply-templates select="$xmlData/data" mode="cpm.path.2uri"/>
     </xsl:function>
         
     <!-- An URI to a path -->
-    <xsl:function name="cpm:pathuri.uri2path">
+    <xsl:function name="cpm:uri.2path">
         <xsl:param name="strURI"/>
         <xsl:param name="strTargetOS"/>
         <xsl:variable name="xmlData">
             <data os="{$strTargetOS}" uri="{$strURI}"/>
         </xsl:variable>
-        <xsl:apply-templates select="$xmlData/data" mode="cpm.pathuri.uri2path"/>
+        <xsl:apply-templates select="$xmlData/data" mode="cpm.uri.2path"/>
     </xsl:function>
 
     

@@ -11,13 +11,27 @@
     
     <xsl:template match="/">
         
-        <xsl:copy-of select="cpm:pathuri.parseURI('http://www.philosoft.ru:80?page=1&amp;size=10#pivoraki')"/>
-        <xsl:copy-of select="cpm:pathuri.parseURI('http://www.philosoft.ru:80#pivoraki')"/>
-        <xsl:copy-of select="cpm:pathuri.parseURI('http://www.philosoft.ru:80/services/docs.html#pivoraki')"/>
-        <xsl:copy-of select="cpm:pathuri.parseURI('http://www.philosoft.ru:80/services/docs.html')"/>
-        <xsl:copy-of select="cpm:pathuri.parseURI('file:///c:/foo/bar/figar.txt')"/>
-        <xsl:copy-of select="cpm:pathuri.parseURI('file:/c:/foo/bar/figar.txt')"/>
-        <xsl:copy-of select="cpm:pathuri.parseURI('file:/c:/figar.txt')"/>
+        <xsl:variable name="strAbsURI1">
+            <xsl:text>http://www.philosoft.ru:80?page=1&amp;size=10#pivoraki</xsl:text>
+        </xsl:variable>
+        
+        <test uri="{$strAbsURI1}" valid="{cpm:uri.isAbsolute($strAbsURI1)}"/>
+        
+        <xsl:variable name="strRelURI1">
+            <xsl:text>http://www.philosoft.ru:80?page=1&amp;size=10#pivoraki</xsl:text>
+        </xsl:variable>
+        
+        <test uri="{$strRelURI1}" valid="{cpm:uri.isRelative($strRelURI1)}"/>
+        
+        <xsl:copy-of select="cpm:uri.parse('http://www.philosoft.ru:80?page=1&amp;size=10#pivoraki')"/>
+        <xsl:copy-of select="cpm:uri.parse('http://www.philosoft.ru:80#pivoraki')"/>
+        <xsl:copy-of select="cpm:uri.parse('http://www.philosoft.ru:80/services/docs.html#pivoraki')"/>
+        <xsl:copy-of select="cpm:uri.parse('http://www.philosoft.ru:80/services/docs.html')"/>
+        <xsl:copy-of select="cpm:uri.parse('file:///c:/foo/bar/figar.new.last.txt')"/>
+        <xsl:copy-of select="cpm:uri.parse('file:/c:/foo/bar/figar.txt')"/>
+        <xsl:copy-of select="cpm:uri.parse('file:/c:/figar.txt')"/>
+        
+        
         
     </xsl:template>
     
