@@ -8,9 +8,21 @@
     <xsl:output method="text" indent="yes"/>
 
     <xsl:template match="/">
-
+        
+        <xsl:text>Protocol: </xsl:text>
+        <xsl:value-of select="cpm:uriregexp.protocol()"/>
+        <xsl:text>&#10;</xsl:text>
+        
         <xsl:text>Credentials: </xsl:text>
         <xsl:value-of select="cpm:uriregexp.credentials()"/>
+        <xsl:text>&#10;</xsl:text>
+        
+        <xsl:text>Host: </xsl:text>
+        <xsl:value-of select="cpm:uriregexp.host()"/>
+        <xsl:text>&#10;</xsl:text>
+        
+        <xsl:text>Full host: </xsl:text>
+        <xsl:value-of select="cpm:uriregexp.fullHost()"/>
         <xsl:text>&#10;</xsl:text>
 
     </xsl:template>
