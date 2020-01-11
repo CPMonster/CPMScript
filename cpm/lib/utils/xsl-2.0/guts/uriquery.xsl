@@ -152,17 +152,27 @@
 
     <xsl:function name="cpm:uri.isRelative" as="xs:boolean">
         <xsl:param name="strURI"/>
-        <xsl:value-of select="matches($strURI, cpm:uri.regexpRelative())"/>
+        <xsl:value-of select="matches($strURI, cpm:urisyn.path())"/>
     </xsl:function>
 
-    <xsl:function name="cpm:uri.isAbsolute" as="xs:boolean">
+    <xsl:function name="cpm:uri.isLocal" as="xs:boolean">
         <xsl:param name="strURI"/>
-        <xsl:value-of select="matches($strURI, cpm:uri.regexpAbsolute())"/>
+        <xsl:value-of select="matches($strURI, cpm:urisyn.localURI())"/>
+    </xsl:function>
+    
+    <xsl:function name="cpm:uri.isGlobal" as="xs:boolean">
+        <xsl:param name="strURI"/>
+        <xsl:value-of select="matches($strURI, cpm:urisyn.globalURI())"/>
+    </xsl:function>
+    
+    <xsl:function name="cpm:uri.isURI" as="xs:boolean">
+        <xsl:param name="strURI"/>
+        <xsl:value-of select="cpm:uri.isLocal($strURI) or cpm:uri.isGlobal($strURI)"/>
     </xsl:function>
     
     <xsl:function name="cpm:uri.isValid" as="xs:boolean">
         <xsl:param name="strURI"/>
-        <xsl:value-of select="cpm:uri.isAbsolute($strURI) or cpm:uri.isRelative($strURI)"/>
+        <xsl:value-of select="cpm:uri.isRelative($strURI) or cpm:uri.isURI($strURI)"/>
     </xsl:function>
 
 </xsl:stylesheet>

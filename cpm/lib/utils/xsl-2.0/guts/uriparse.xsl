@@ -21,11 +21,8 @@
     <xsl:import href="../morestr.xsl"/>
     
     <!-- Regular expressions for parsing URIs-->
-    <xsl:import href="uriregexp.xsl"/>
+    <xsl:import href="urisyn.xsl"/>
 
-
-    
-    
 
     <!-- 
         Representing an URI as a sequence of named elements
