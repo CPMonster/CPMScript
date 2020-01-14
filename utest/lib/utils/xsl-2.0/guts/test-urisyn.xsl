@@ -25,8 +25,8 @@
         <xsl:value-of select="cpm:urisyn.fullHost()"/>
         <xsl:text>&#10;</xsl:text>
         
-        <xsl:text>Local URI: </xsl:text>
-        <xsl:value-of select="cpm:urisyn.localURI()"/>
+        <xsl:text>Any URI: </xsl:text>
+        <xsl:value-of select="cpm:urisyn.URI()"/>
         <xsl:text>&#10;</xsl:text>
         
         <xsl:text>Global URI: </xsl:text>

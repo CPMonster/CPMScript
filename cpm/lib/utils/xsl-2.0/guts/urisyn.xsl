@@ -64,7 +64,7 @@
 
     <!-- Credentials -->
 
-    <!-- daRlLoRd -->
+    <!-- daRkLoRd -->
     <xsl:function name="cpm:urisyn.login">
         <xsl:value-of select="cpm:urisyn.commonTerm()"/>
     </xsl:function>
@@ -84,7 +84,7 @@
         </xsl:call-template>
     </xsl:function>
 
-    <!-- daRlLoRd:querty -->
+    <!-- daRkLoRd:querty -->
     <xsl:function name="cpm:urisyn.credentials">
         <xsl:call-template name="cpm.regexp.sequenceGroup">
             <xsl:with-param name="seqItems">
@@ -94,7 +94,7 @@
         </xsl:call-template>
     </xsl:function>
 
-    <!-- daRlLoRd:querty@ -->
+    <!-- daRkLoRd:querty@ -->
     <xsl:function name="cpm:urisyn.credentialsGroup">
         <xsl:call-template name="cpm.regexp.sequenceGroup">
             <xsl:with-param name="seqItems">
@@ -176,7 +176,7 @@
         <xsl:call-template name="cpm.regexp.sequenceGroup">
             <xsl:with-param name="seqItems">
                 <xsl:text>\/\/</xsl:text>
-                <xsl:value-of select="cpm:urisyn.address()"/>
+                <xsl:value-of select="cpm:regexp.multiGroup(cpm:urisyn.address(), '?')"/>
             </xsl:with-param>
         </xsl:call-template>
     </xsl:function>
@@ -203,18 +203,24 @@
     <!-- Query parameters -->
 
     <!-- size -->
-    <xsl:function name="cpm:urisyn.pName">
+    <xsl:function name="cpm:urisyn.paramName">
         <xsl:value-of select="cpm:urisyn.hostTerm()"/>
     </xsl:function>
 
-    <!-- 15 or whatever you want -->
-    <xsl:function name="cpm:urisyn.pValue">
+    <!-- 15 or whatever you want, say, krokodil%20begemot -->
+    <xsl:function name="cpm:urisyn.paramValue">
         <xsl:value-of select="cpm:urisyn.commonTerm()"/>
     </xsl:function>
 
     <!-- size=15 -->
     <xsl:function name="cpm:urisyn.param">
-        <xsl:value-of select="cpm:regexp.binary(cpm:urisyn.pName(), cpm:urisyn.pValue(), '=')"/>
+        <xsl:call-template name="cpm.regexp.sequenceGroup">
+            <xsl:with-param name="seqItems">
+                <xsl:value-of select="cpm:urisyn.paramName()"/>
+                <xsl:text>=</xsl:text>
+                <xsl:value-of select="cpm:urisyn.paramValue()"/>
+            </xsl:with-param>
+        </xsl:call-template>
     </xsl:function>
 
     <!-- &size=15 -->
@@ -253,6 +259,16 @@
     <!-- c: -->
     <xsl:function name="cpm:urisyn.drive">
         <xsl:text><![CDATA[[A-Za-z]:]]></xsl:text>
+    </xsl:function>
+
+    <!-- /c: -->
+    <xsl:function name="cpm:urisyn.driveGroup">
+        <xsl:call-template name="cpm.regexp.sequenceGroup">
+            <xsl:with-param name="seqItems">
+                <xsl:text>\/</xsl:text>
+                <xsl:value-of select="cpm:urisyn.drive()"/>
+            </xsl:with-param>
+        </xsl:call-template>
     </xsl:function>
 
     <!-- zoo -->
@@ -301,7 +317,7 @@
         </xsl:call-template>
     </xsl:function>
 
-    <!-- /zoo/animals/wombat.phtml#food -->
+    <!-- /zoo/animals/wombat.phtml?page=4&size=15#food -->
     <xsl:function name="cpm:urisyn.pathGroup">
         <xsl:call-template name="cpm.regexp.sequenceGroup">
             <xsl:with-param name="seqItems">
@@ -311,17 +327,38 @@
         </xsl:call-template>
     </xsl:function>
 
-    <!-- c:/htdocs/zoo/animals/wombat.phtml#food -->
+    <!--
+        Basically, query parameters don't make sense for a local 
+        path. Nevertheless, we allow a local path to contain 
+        query parameters. Perhaps, someone will need to use this 
+        in custom applications. Who knows...
+    -->
+
+    <!-- c:/htdocs/zoo/animals/wombat.phtml?page=4&size=15#food -->
     <xsl:function name="cpm:urisyn.fullPath">
+
         <xsl:call-template name="cpm.regexp.sequenceGroup">
             <xsl:with-param name="seqItems">
-                <xsl:value-of select="cpm:urisyn.drive()"/>
+                <xsl:value-of select="cpm:regexp.multiGroup(cpm:urisyn.drive(), '?')"/>
                 <xsl:value-of select="cpm:regexp.multiGroup(cpm:urisyn.pathGroup(), '?')"/>
             </xsl:with-param>
         </xsl:call-template>
+        <!--
+                <xsl:call-template name="cpm.regexp.choiseGroup">
+            <xsl:with-param name="seqChoises">               
+                <xsl:call-template name="cpm.regexp.sequenceGroup">
+                    <xsl:with-param name="seqItems">
+                        <xsl:value-of select="cpm:regexp.multiGroup(cpm:urisyn.drive(), '?')"/>
+                        <xsl:value-of select="cpm:urisyn.pathGroup()"/>
+                    </xsl:with-param>
+                </xsl:call-template>
+                <xsl:value-of select="cpm:urisyn.drive()"/>
+            </xsl:with-param>
+        </xsl:call-template>
+        -->
     </xsl:function>
 
-    <!-- /c:/htdocs/zoo/animals/wombat.phtml#food -->
+    <!-- /c:/htdocs/zoo/animals/wombat.phtml?page=4&size=15#food -->
     <xsl:function name="cpm:urisyn.fullPathGroup">
         <xsl:call-template name="cpm.regexp.sequenceGroup">
             <xsl:with-param name="seqItems">
@@ -332,21 +369,22 @@
     </xsl:function>
 
 
-    <!-- Local URI -->
+    <!-- Any URI (an address group is optional) -->
 
-    <!-- file:/c:/htdocs/zoo/animals/wombat.phtml#food -->
-    <xsl:function name="cpm:urisyn.localURI">
+    <!-- file:/c:/htdocs/zoo/animals/wombat.phtml?page=4&size=15#food -->
+    <xsl:function name="cpm:urisyn.URI">
         <xsl:call-template name="cpm.regexp.sequenceGroup">
             <xsl:with-param name="seqItems">
                 <xsl:value-of select="cpm:urisyn.fullProtocol()"/>
-                <xsl:value-of select="cpm:regexp.multiGroup('\/\/', '?')"/>
-                <xsl:value-of select="cpm:urisyn.fullPathGroup()"/>
+                <xsl:value-of select="cpm:regexp.multiGroup(cpm:urisyn.addressGroup(), '?')"/>
+                <xsl:value-of select="cpm:regexp.multiGroup(cpm:urisyn.driveGroup(), '?')"/>
+                <xsl:value-of select="cpm:regexp.multiGroup(cpm:urisyn.pathGroup(), '?')"/>
             </xsl:with-param>
         </xsl:call-template>
     </xsl:function>
 
 
-    <!-- Global URI -->
+    <!-- Global URI (an address group is mandatory; a drive is not permitted) -->
 
     <!-- http://daRkLoRd:querty@www.example.com:80/zoo/animals/wombat.py?page=5&size=15#food -->
     <xsl:function name="cpm:urisyn.globalURI">
@@ -359,6 +397,6 @@
                 <xsl:value-of select="cpm:regexp.multiGroup(cpm:urisyn.anchorGroup(), '?')"/>
             </xsl:with-param>
         </xsl:call-template>
-    </xsl:function>    
+    </xsl:function>
 
 </xsl:stylesheet>
