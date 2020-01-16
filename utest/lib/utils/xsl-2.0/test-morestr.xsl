@@ -63,6 +63,21 @@
         <xsl:value-of select="cpm:strlist.tail('cow, horse, rabbit', ',\s*')"/>
         <xsl:text>&#10;</xsl:text>
         <xsl:text>&#10;</xsl:text>
+        
+        <xsl:text>cpm:strlist.range()</xsl:text>
+        <xsl:text>&#10;</xsl:text>
+        <xsl:text>Корова собака: </xsl:text>
+        <xsl:value-of select="cpm:encoding.range('Корова собака')"/>
+        <xsl:text>&#10;</xsl:text>
+        <xsl:text>כלב פרה</xsl:text>
+        <xsl:text>: </xsl:text>
+        <xsl:value-of select="cpm:encoding.range('כלב פרה')"/>
+        <xsl:text>&#10;</xsl:text>
+        <xsl:text>αγελάδα σκυλί</xsl:text>
+        <xsl:text>: </xsl:text>
+        <xsl:value-of select="cpm:encoding.range('αγελάδα σκυλί')"/>
+        <xsl:text>&#10;</xsl:text>
+        <xsl:text>&#10;</xsl:text>
        
 
     </xsl:template>
