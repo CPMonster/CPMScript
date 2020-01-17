@@ -17,14 +17,14 @@
         <xsl:copy-of select="$seqProduct"/>
         <xsl:text>&#10;</xsl:text>
         <xsl:text>&#10;</xsl:text>
-        
+
         <xsl:text>Number of elements: </xsl:text>
         <xsl:copy-of select="count($seqProduct)"/>
         <xsl:text>&#10;</xsl:text>
         <xsl:value-of select="string-join($seqProduct, '.')"/>
         <xsl:text>&#10;</xsl:text>
         <xsl:text>&#10;</xsl:text>
-        
+
         <xsl:text>cpm:strlist.separ()</xsl:text>
         <xsl:text>&#10;</xsl:text>
         <xsl:text>, : </xsl:text>
@@ -37,8 +37,8 @@
         <xsl:value-of select="cpm:strlist.separ('cow, horse, rabbit', '[A-Za-z]+ .+')"/>
         <xsl:text>&#10;</xsl:text>
         <xsl:text>&#10;</xsl:text>
-        
-        
+
+
         <xsl:text>cpm:strlist.sequence()</xsl:text>
         <xsl:text>&#10;</xsl:text>
         <xsl:text>, : </xsl:text>
@@ -51,19 +51,19 @@
         <xsl:copy-of select="cpm:strlist.sequence('cow, horse, rabbit', '[A-Za-z]+ .+')"/>
         <xsl:text>&#10;</xsl:text>
         <xsl:text>&#10;</xsl:text>
-        
+
         <xsl:text>cpm:strlist.head()</xsl:text>
         <xsl:text>&#10;</xsl:text>
         <xsl:value-of select="cpm:strlist.head('cow, horse, rabbit', ',\s*')"/>
         <xsl:text>&#10;</xsl:text>
         <xsl:text>&#10;</xsl:text>
-        
+
         <xsl:text>cpm:strlist.tail()</xsl:text>
         <xsl:text>&#10;</xsl:text>
         <xsl:value-of select="cpm:strlist.tail('cow, horse, rabbit', ',\s*')"/>
         <xsl:text>&#10;</xsl:text>
         <xsl:text>&#10;</xsl:text>
-        
+
         <xsl:text>cpm:strlist.range()</xsl:text>
         <xsl:text>&#10;</xsl:text>
         <xsl:text>Корова собака: </xsl:text>
@@ -78,7 +78,15 @@
         <xsl:value-of select="cpm:encoding.range('αγελάδα σκυλί')"/>
         <xsl:text>&#10;</xsl:text>
         <xsl:text>&#10;</xsl:text>
-       
+
+        <xsl:text>cpm:translit.monoAuto()</xsl:text>
+        <xsl:text>&#10;</xsl:text>
+        <xsl:value-of
+            select="cpm:translit.monoAuto('Съешь ещё этих мягких французских булок, да выпей чаю', 'ASCII')"/>
+        <xsl:text>&#10;</xsl:text>
+        <xsl:value-of
+            select="cpm:translit.monoAuto('אכלו את הלחמניות הצרפתיות הרכות והשתו מעט תה', 'ASCII')"/>
+
 
     </xsl:template>
 

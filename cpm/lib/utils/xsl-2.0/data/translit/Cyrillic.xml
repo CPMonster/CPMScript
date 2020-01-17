@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <translit>
-    <alphabet range="Cyrillic" target="ASCII">
+    <alphabet source="Cyrillic" target="ASCII">
         <translate source="АБДГДЕЁЗИЙКЛМНОПРСТУФЫЭабвгдеёзийклмнопрстуфыэ"
-            target="ABVGDEEЯIIKLMNOPRSTUFYEabvgdeeziiklmnoprstufye"/>
+                   target="ABVGDEEZIIKLMNOPRSTUFYEabvgdeeziiklmnoprstufye"/>
         <char source="Ж" target="Zh"/>
         <char source="Ч" target="Сh"/>
         <char source="Ш" target="Sh"/>
@@ -15,11 +15,11 @@
         <char source="ж" target="zh"/>
         <char source="ч" target="ch"/>
         <char source="ш" target="sh"/>
-        <char source="ш" target="shch"/>
+        <char source="щ" target="shch"/>
         <char source="х" target="kh"/>
         <char source="ц" target="tc"/>
-        <char source="ы" target="Y"/>
-        <char source="ю" target="Iu"/>
-        <char source="я" target="Ia"/>
+        <char source="ы" target="y"/>
+        <char source="ю" target="iu"/>
+        <char source="я" target="ia"/>
     </alphabet>
 </translit>
