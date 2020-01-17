@@ -45,7 +45,7 @@
         <xsl:value-of select="normalize-space(@string)"/>
     </xsl:template>
 
-    <xsl:template match="*[@mode = ('', 'dummy')]" mode="cpm.polystr.normalize">
+    <xsl:template match="*[@mode = ('', 'asis')]" mode="cpm.polystr.normalize">
         <xsl:value-of select="@string"/>
     </xsl:template>
 

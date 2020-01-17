@@ -87,14 +87,14 @@
         </xsl:choose>
 
     </xsl:function>
-    
+
     <!-- What do we do if we failed to detect a separator? -->
     <xsl:function name="cpm:strlist.patterns2separ">
         <xsl:param name="strPatterns"/>
-        
+
         <!-- This way so far -->
         <xsl:text>,</xsl:text>
-        
+
     </xsl:function>
 
     <!-- Detecting an actual separator -->
@@ -126,16 +126,16 @@
 
             </xsl:choose>
         </xsl:variable>
-        
+
         <xsl:choose>
-            <xsl:when test="$seqSeps[1] != '' ">
-                <xsl:value-of select="$seqSeps[1]"/>        
+            <xsl:when test="$seqSeps[1] != ''">
+                <xsl:value-of select="$seqSeps[1]"/>
             </xsl:when>
             <xsl:otherwise>
                 <xsl:value-of select="cpm:strlist.patterns2separ($strPatterns)"/>
             </xsl:otherwise>
         </xsl:choose>
-               
+
     </xsl:function>
 
 
@@ -182,6 +182,30 @@
         <xsl:variable name="seqList" select="cpm:strlist.sequence($strList, $strPatterns)"/>
         <xsl:variable name="strSep" select="cpm:strlist.separ($strList, $strPatterns)"/>
         <xsl:value-of select="cpm:strlist.string($seqList[position() != 1], $strSep)"/>
+    </xsl:function>
+
+
+    <!-- 
+        Testing lists
+    -->
+
+    <!-- Does a list contain an item? -->
+    <xsl:function name="cpm:strlist.contains" as="xs:boolean">
+        <xsl:param name="strList"/>
+        <xsl:param name="strItem"/>
+        <xsl:param name="strPatterns"/>
+        <xsl:param name="strNorm"/>
+
+        <xsl:variable name="strNormItem" select="cpm:polystr.normalize($strItem, $strNorm)"/>
+
+        <xsl:variable name="seqNormList" as="xs:string*">
+            <xsl:for-each select="cpm:strlist.sequence($strList, $strPatterns)">
+                <xsl:value-of select="cpm:polystr.normalize(., $strNorm)"/>
+            </xsl:for-each>
+        </xsl:variable>                
+
+        <xsl:value-of select="$strNormItem = $seqNormList"/>
+
     </xsl:function>
 
 </xsl:stylesheet>

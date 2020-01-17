@@ -86,6 +86,18 @@
         <xsl:text>&#10;</xsl:text>
         <xsl:value-of
             select="cpm:translit.monoAuto('אכלו את הלחמניות הצרפתיות הרכות והשתו מעט תה', 'ASCII')"/>
+        
+        <xsl:text>cpm:strlist.contains()</xsl:text>
+        <xsl:text>&#10;</xsl:text>
+        <xsl:text>cpm:strlist.contains('cow, horse, rabbit', 'horse', '\s*,\s*', 'case')</xsl:text>
+        <xsl:text>&#10;</xsl:text>
+        <xsl:value-of select="cpm:strlist.contains('cow, horse, rabbit', 'Horse', '\s*,\s*', 'case')"/>
+        <xsl:text>&#10;</xsl:text>
+        <xsl:text>cpm:strlist.contains('cow, horse, rabbit', 'cat', '\s*,\s*', 'case')</xsl:text>
+        <xsl:text>&#10;</xsl:text>
+        <xsl:value-of select="cpm:strlist.contains('cow, horse, rabbit', 'cat', '\s*,\s*', 'case')"/>
+        <xsl:text>&#10;</xsl:text>
+        <xsl:text>&#10;</xsl:text>
 
 
     </xsl:template>
