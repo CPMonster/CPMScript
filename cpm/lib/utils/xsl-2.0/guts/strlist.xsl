@@ -165,8 +165,18 @@
 
 
     <!-- 
-        Processing a list
+        Processing lists
     -->
+
+    <!-- Transforming a list to a normalized sequence -->
+    <xsl:function name="cpm:strlist.normseq" as="xs:string*">
+        <xsl:param name="strList"/>
+        <xsl:param name="strPatterns"/>
+        <xsl:param name="strNorm"/>
+        <xsl:variable name="seqList" select="cpm:strlist.sequence($strList, $strPatterns)"
+            as="xs:string*"/>
+        <xsl:copy-of select="cpm:polystr.normseq($seqList, $strNorm)"/>
+    </xsl:function>
 
     <!-- 'cow, horse, rabbit' gives 'cow' -->
     <xsl:function name="cpm:strlist.head">
@@ -202,7 +212,7 @@
             <xsl:for-each select="cpm:strlist.sequence($strList, $strPatterns)">
                 <xsl:value-of select="cpm:polystr.normalize(., $strNorm)"/>
             </xsl:for-each>
-        </xsl:variable>                
+        </xsl:variable>
 
         <xsl:value-of select="$strNormItem = $seqNormList"/>
 
