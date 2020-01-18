@@ -106,35 +106,44 @@
             select="cpm:strlist.normseq('cow, horse, Rabbit, rabbit, coW, horse', '\s*,\s*', 'CASE')"/>
         <xsl:text>&#10;</xsl:text>
         <xsl:text>&#10;</xsl:text>
-                
+
         <xsl:text>cpm:strset.set()</xsl:text>
         <xsl:text>&#10;</xsl:text>
         <xsl:value-of
             select="cpm:strset.set('cow, Horse, rabbIT, rabbit, Cow, horse', '\s*,\s*', 'CASE')"/>
         <xsl:text>&#10;</xsl:text>
-        <xsl:text>&#10;</xsl:text>        
+        <xsl:text>&#10;</xsl:text>
 
         <xsl:text>cpm:strset.union()</xsl:text>
         <xsl:text>&#10;</xsl:text>
-        <xsl:value-of
-            select="cpm:strset.union('cow, Horse', 'rabbit, Cow', '\s*,\s*', 'CASE')"/>
+        <xsl:value-of select="cpm:strset.union('cow, Horse', 'rabbit, Cow', '\s*,\s*', 'CASE')"/>
         <xsl:text>&#10;</xsl:text>
+        <xsl:value-of select="cpm:strset.union('cow', 'rabbit', '\s*,\s e.g. ;\s', 'CASE')"/>
         <xsl:text>&#10;</xsl:text>
+        <xsl:value-of select="cpm:strset.union('cow', 'rabbit', '\s*,\s e.g. \\', 'CASE')"/>
+        <xsl:text>&#10;</xsl:text>
+        <xsl:text>&#10;</xsl:text>        
 
         <xsl:text>cpm:strset.intersection()</xsl:text>
         <xsl:text>&#10;</xsl:text>
         <xsl:value-of
             select="cpm:strset.intersection('cow, Horse, cat', 'rabbit, cat, Cow', '\s*,\s*', 'CASE')"/>
         <xsl:text>&#10;</xsl:text>
-        <xsl:text>&#10;</xsl:text>   
-        
+        <xsl:text>&#10;</xsl:text>
+
         <xsl:text>cpm:strset.difference()</xsl:text>
         <xsl:text>&#10;</xsl:text>
         <xsl:value-of
             select="cpm:strset.difference('cow, Horse, cat', 'rabbit, cat, Cow', '\s*,\s*', 'CASE')"/>
         <xsl:text>&#10;</xsl:text>
-        <xsl:text>&#10;</xsl:text>  
-        
+        <xsl:text>&#10;</xsl:text>
+
+        <xsl:text>cpm:strlist.append()</xsl:text>
+        <xsl:text>&#10;</xsl:text>
+        <xsl:value-of select="cpm:strlist.append('cow', 'rabbit', '\s*,\s e.g. ;\s')"/>
+        <xsl:text>&#10;</xsl:text>
+        <xsl:text>&#10;</xsl:text>
+                        
         <xsl:text>cpm:strset.equal()</xsl:text>
         <xsl:text>&#10;</xsl:text>
         <xsl:value-of
@@ -143,8 +152,8 @@
         <xsl:value-of
             select="cpm:strset.equal('cow, Horse, cat', 'rabbit, cat, Cow', '\s*,\s*', 'CASE')"/>
         <xsl:text>&#10;</xsl:text>
-        <xsl:text>&#10;</xsl:text>  
-        
+        <xsl:text>&#10;</xsl:text>
+
 
     </xsl:template>
 

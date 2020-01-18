@@ -56,9 +56,9 @@
         <xsl:param name="strSet1"/>
         <xsl:param name="strSet2"/>
         <xsl:param name="strPatterns"/>
-        <xsl:param name="strMode"/>
+        <xsl:param name="strNorm"/>
         <xsl:variable name="strList" select="cpm:strlist.append($strSet1, $strSet2, $strPatterns)"/>
-        <xsl:value-of select="cpm:strset.set($strList, $strPatterns, $strMode)"/>
+        <xsl:value-of select="cpm:strset.set($strList, $strPatterns, $strNorm)"/>
     </xsl:function>
 
     <!-- 'cow, horse' and 'cow, rabbit' give 'cow' -->

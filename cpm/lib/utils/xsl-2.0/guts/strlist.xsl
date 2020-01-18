@@ -20,125 +20,185 @@
     <!-- Custom normalization for strings -->
     <xsl:import href="polystr.xsl"/>
 
+    <!-- Fast selectors etc. -->
+    <xsl:import href="doitquick.xsl"/>
+
 
     <!-- 
-        Unpacking a string to a sequence of string items    
+        Parsing list pattern string:   
     -->
 
     <!-- 
         Both item and separator patterns:         '[A-Za-z]+ \s*(,|;)\s*'
         An item pattern; separators don't matter: '[A-Za-z]+ .+'
         A separator pattern; item don't matter:   '\s*(,|;)\s*'
+        A default separator is provided:          '[A-Za-z]+ \s*(,|;)\s* e.g. ,\s'     
     -->
 
     <!-- Extracting an item pattern, e.g. cpmitem: [A-Za-z][A-Za-z\d]* -->
-    <xsl:function name="cpm:strlist.listItmPattern">
+    <xsl:function name="cpm:strlist.itmPattern">
         <xsl:param name="strPatterns"/>
-        <xsl:if test="contains($strPatterns, ' ')">
-            <xsl:value-of select="normalize-space(substring-before($strPatterns, ' '))"/>
-        </xsl:if>
+
+        <xsl:variable name="seqParts" select="tokenize(normalize-space($strPatterns), '\s+')"/>
+
+        <xsl:choose>
+            <xsl:when test="count($seqParts) = 4">
+                <xsl:value-of select="$seqParts[1]"/>
+            </xsl:when>
+            <xsl:when test="count($seqParts) = 2">
+                <xsl:value-of select="$seqParts[1]"/>
+            </xsl:when>
+        </xsl:choose>
+       
     </xsl:function>
 
     <!-- Extracting a separator pattern, e.g. cpmsep: \s*,\s* -->
-    <xsl:function name="cpm:strlist.listSepPattern">
+    <xsl:function name="cpm:strlist.sepPattern">
         <xsl:param name="strPatterns"/>
 
+        <xsl:variable name="seqParts" select="tokenize(normalize-space($strPatterns), '\s+')"/>
+
         <xsl:choose>
-
-            <xsl:when test="contains($strPatterns, ' ')">
-                <xsl:variable name="strRawSepPattern">
-                    <xsl:value-of select="normalize-space(substring-after($strPatterns, ' '))"/>
-                </xsl:variable>
-                <xsl:if test="not($strRawSepPattern = '.+')">
-                    <xsl:value-of select="$strRawSepPattern"/>
-                </xsl:if>
+            <xsl:when test="count($seqParts) = 1">
+                <xsl:value-of select="$seqParts[1]"/>
             </xsl:when>
-
-            <xsl:otherwise>
-                <xsl:value-of select="$strPatterns"/>
-            </xsl:otherwise>
-
+            <xsl:when test="count($seqParts) = 2">
+                <xsl:value-of select="$seqParts[2]"/>
+            </xsl:when>
+            <xsl:when test="count($seqParts) = 3">
+                <xsl:value-of select="$seqParts[1]"/>
+            </xsl:when>
+            <xsl:when test="count($seqParts) = 4">
+                <xsl:value-of select="$seqParts[2]"/>
+            </xsl:when>
         </xsl:choose>
-
+        
     </xsl:function>
 
+    <!-- Extracting a default separator list separator -->
+    <xsl:function name="cpm:strlist.defSep">
+        <xsl:param name="strPatterns"/>
+
+        <xsl:variable name="seqParts" select="tokenize(normalize-space($strPatterns), '\s+')"/>
+
+        <xsl:variable name="strRawDefSep">
+            <xsl:choose>
+                <xsl:when test="count($seqParts) = 3">
+                    <xsl:value-of select="$seqParts[3]"/>
+                </xsl:when>
+                <xsl:when test="count($seqParts) = 4">
+                    <xsl:value-of select="$seqParts[4]"/>
+                </xsl:when>
+            </xsl:choose>
+        </xsl:variable>
+
+        <xsl:variable name="tmp">
+            <xsl:analyze-string select="$strRawDefSep" regex="\\s|\\\\">
+                <xsl:matching-substring>
+                    <xsl:choose>
+                        <xsl:when test=". = '\s'">
+                            <xsl:text>&#32;</xsl:text>
+                        </xsl:when>
+                        <xsl:when test=". = '\\'">
+                            <xsl:text>\</xsl:text>
+                        </xsl:when>
+                    </xsl:choose>
+                </xsl:matching-substring>
+                <xsl:non-matching-substring>
+                    <xsl:value-of select="."/>
+                </xsl:non-matching-substring>
+            </xsl:analyze-string>
+        </xsl:variable>
+
+        <xsl:value-of select="$tmp"/>
+
+    </xsl:function>
+    
+    <!-- Suggesting an separator for a list -->
+    <xsl:function name="cpm:strlist.separ">
+        <xsl:param name="strList"/>
+        <xsl:param name="strPatterns"/>
+        
+        <xsl:variable name="strItmPattern" select="cpm:strlist.itmPattern($strPatterns)"/>
+        <xsl:variable name="strSepPattern" select="cpm:strlist.sepPattern($strPatterns)"/>
+        
+        <xsl:variable name="seqSeps" as="xs:string*">
+            <xsl:choose>
+                
+                <xsl:when test="$strSepPattern != ''">
+                    <xsl:analyze-string select="$strList" regex="{$strSepPattern}">
+                        <xsl:matching-substring>
+                            <xsl:value-of select="."/>
+                        </xsl:matching-substring>
+                    </xsl:analyze-string>
+                </xsl:when>
+                
+                <xsl:otherwise>
+                    <xsl:analyze-string select="$strList" regex="{$strItmPattern}">
+                        <xsl:non-matching-substring>
+                            <xsl:value-of select="."/>
+                        </xsl:non-matching-substring>
+                    </xsl:analyze-string>
+                </xsl:otherwise>
+                
+            </xsl:choose>
+        </xsl:variable>
+        
+        <xsl:value-of select="cpm:diq.strDef($seqSeps[1], cpm:strlist.defSep($strPatterns))"/>
+        
+    </xsl:function>
+    
+    <!-- Suggesting an separator for a couple of list -->
+    <xsl:function name="cpm:strlist.separ2">
+        <xsl:param name="strList1"/>
+        <xsl:param name="strList2"/>
+        <xsl:param name="strPatterns"/>
+        
+        <xsl:variable name="strSep1" select="cpm:strlist.separ($strList1, $strPatterns)"/>
+        
+        <xsl:choose>
+            <xsl:when test="$strSep1 != ''">
+                <xsl:value-of select="$strSep1"/>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="cpm:strlist.separ($strList2, $strPatterns)"/>
+            </xsl:otherwise>
+        </xsl:choose>
+        
+    </xsl:function>
+
+
+    <!-- 
+        Unpacking a string to a sequence of string items    
+    -->
+    
     <!-- Splitting a list using patterns like -->
     <xsl:function name="cpm:strlist.sequence" as="xs:string*">
         <xsl:param name="strList"/>
         <xsl:param name="strPatterns"/>
 
-        <xsl:variable name="strListItmPattern" select="cpm:strlist.listItmPattern($strPatterns)"/>
-        <xsl:variable name="strListSepPattern" select="cpm:strlist.listSepPattern($strPatterns)"/>
+        <xsl:variable name="strItmPattern" select="cpm:strlist.itmPattern($strPatterns)"/>
+        <xsl:variable name="strSepPattern" select="cpm:strlist.sepPattern($strPatterns)"/>
 
         <xsl:choose>
 
-            <xsl:when test="$strListItmPattern != ''">
-                <xsl:analyze-string select="$strList" regex="{$strListItmPattern}">
+            <xsl:when test="$strItmPattern != ''">
+                <xsl:analyze-string select="$strList" regex="{$strItmPattern}">
                     <xsl:matching-substring>
                         <xsl:value-of select="."/>
                     </xsl:matching-substring>
                 </xsl:analyze-string>
             </xsl:when>
 
-            <xsl:when test="$strListSepPattern != ''">
-                <xsl:copy-of select="tokenize($strList, $strListSepPattern)"/>
+            <xsl:when test="$strSepPattern != ''">
+                <xsl:copy-of select="tokenize($strList, $strSepPattern)"/>
             </xsl:when>
 
         </xsl:choose>
 
     </xsl:function>
 
-    <!-- What do we do if we failed to detect a separator? -->
-    <xsl:function name="cpm:strlist.patterns2separ">
-        <xsl:param name="strPatterns"/>
-
-        <!-- This way so far -->
-        <xsl:text>,</xsl:text>
-
-    </xsl:function>
-
-    <!-- Detecting an actual separator -->
-    <xsl:function name="cpm:strlist.separ">
-        <xsl:param name="strList"/>
-        <xsl:param name="strPatterns"/>
-
-        <xsl:variable name="strListItmPattern" select="cpm:strlist.listItmPattern($strPatterns)"/>
-        <xsl:variable name="strListSepPattern" select="cpm:strlist.listSepPattern($strPatterns)"/>
-
-        <xsl:variable name="seqSeps" as="xs:string*">
-            <xsl:choose>
-
-                <xsl:when test="$strListSepPattern != ''">
-                    <xsl:analyze-string select="$strList" regex="{$strListSepPattern}">
-                        <xsl:matching-substring>
-                            <xsl:value-of select="."/>
-                        </xsl:matching-substring>
-                    </xsl:analyze-string>
-                </xsl:when>
-
-                <xsl:otherwise>
-                    <xsl:analyze-string select="$strList" regex="{$strListItmPattern}">
-                        <xsl:non-matching-substring>
-                            <xsl:value-of select="."/>
-                        </xsl:non-matching-substring>
-                    </xsl:analyze-string>
-                </xsl:otherwise>
-
-            </xsl:choose>
-        </xsl:variable>
-
-        <xsl:choose>
-            <xsl:when test="$seqSeps[1] != ''">
-                <xsl:value-of select="$seqSeps[1]"/>
-            </xsl:when>
-            <xsl:otherwise>
-                <xsl:value-of select="cpm:strlist.patterns2separ($strPatterns)"/>
-            </xsl:otherwise>
-        </xsl:choose>
-
-    </xsl:function>
-
-
+    
     <!-- 
         Serializing a sequence to a list
     -->
@@ -159,7 +219,7 @@
         <xsl:param name="strList1"/>
         <xsl:param name="strList2"/>
         <xsl:param name="strPatterns"/>
-        <xsl:variable name="strSep" select="cpm:strlist.separ($strList1, $strPatterns)"/>
+        <xsl:variable name="strSep" select="cpm:strlist.separ2($strList1, $strList1, $strPatterns)"/>
         <xsl:value-of select="concat($strList1, $strSep, $strList2)"/>
     </xsl:function>
 
@@ -167,6 +227,15 @@
     <!-- 
         Processing lists
     -->
+
+    <!-- Reassembling a list with another separator -->
+    <xsl:function name="cpm:strlist.chsep">
+        <xsl:param name="strList"/>
+        <xsl:param name="strPatterns"/>
+        <xsl:param name="strNewSep"/>
+        <xsl:variable name="seqList" select="cpm:strlist.sequence($strList, $strPatterns)"/>
+        <xsl:value-of select="cpm:strlist.string($seqList, $strNewSep)"/>
+    </xsl:function>
 
     <!-- Transforming a list to a normalized sequence -->
     <xsl:function name="cpm:strlist.normseq" as="xs:string*">
@@ -198,6 +267,20 @@
     <!-- 
         Testing lists
     -->
+
+    <!-- Detecting the number of list items -->
+    <xsl:function name="cpm:strlist.count">
+        <xsl:param name="strList"/>
+        <xsl:param name="strPatterns"/>
+        <xsl:value-of select="count(cpm:strlist.sequence($strList, $strPatterns))"/>
+    </xsl:function>
+
+    <!-- Detecting empty lists -->
+    <xsl:function name="cpm:strlist.isEmpty" as="xs:boolean">
+        <xsl:param name="strList"/>
+        <xsl:param name="strPatterns"/>
+        <xsl:value-of select="cpm:strlist.count($strList, $strPatterns) = 0"/>
+    </xsl:function>
 
     <!-- Does a list contain an item? -->
     <xsl:function name="cpm:strlist.contains" as="xs:boolean">
