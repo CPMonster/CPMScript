@@ -175,7 +175,10 @@
     <xsl:function name="cpm:urisyn.addressGroup">
         <xsl:call-template name="cpm.regexp.sequenceGroup">
             <xsl:with-param name="seqItems">
+                <!--
                 <xsl:text>\/\/</xsl:text>
+                -->
+                <xsl:text>//</xsl:text>
                 <xsl:value-of select="cpm:regexp.multiGroup(cpm:urisyn.address(), '?')"/>
             </xsl:with-param>
         </xsl:call-template>
@@ -265,7 +268,10 @@
     <xsl:function name="cpm:urisyn.driveGroup">
         <xsl:call-template name="cpm.regexp.sequenceGroup">
             <xsl:with-param name="seqItems">
+                <!--
                 <xsl:text>\/</xsl:text>
+                -->
+                <xsl:text>/</xsl:text>
                 <xsl:value-of select="cpm:urisyn.drive()"/>
             </xsl:with-param>
         </xsl:call-template>
@@ -280,7 +286,10 @@
     <xsl:function name="cpm:urisyn.filenameGroup">
         <xsl:call-template name="cpm.regexp.sequenceGroup">
             <xsl:with-param name="seqItems">
+                <!--
                 <xsl:text>\/</xsl:text>
+                -->
+                <xsl:text>/</xsl:text>
                 <xsl:value-of select="cpm:urisyn.filename()"/>
             </xsl:with-param>
         </xsl:call-template>
@@ -300,7 +309,10 @@
     <xsl:function name="cpm:urisyn.filePathGroup">
         <xsl:call-template name="cpm.regexp.sequenceGroup">
             <xsl:with-param name="seqItems">
+                <!--
                 <xsl:text>\/</xsl:text>
+                -->
+                <xsl:text>/</xsl:text>
                 <xsl:value-of select="cpm:urisyn.path()"/>
             </xsl:with-param>
         </xsl:call-template>
@@ -321,7 +333,10 @@
     <xsl:function name="cpm:urisyn.pathGroup">
         <xsl:call-template name="cpm.regexp.sequenceGroup">
             <xsl:with-param name="seqItems">
+                <!--
                 <xsl:text>\/</xsl:text>
+                -->
+                <xsl:text>/</xsl:text>
                 <xsl:value-of select="cpm:urisyn.path()"/>
             </xsl:with-param>
         </xsl:call-template>
@@ -362,7 +377,10 @@
     <xsl:function name="cpm:urisyn.fullPathGroup">
         <xsl:call-template name="cpm.regexp.sequenceGroup">
             <xsl:with-param name="seqItems">
+                <!--
                 <xsl:text>\/</xsl:text>
+                -->
+                <xsl:text>/</xsl:text>
                 <xsl:value-of select="cpm:urisyn.fullPath()"/>
             </xsl:with-param>
         </xsl:call-template>

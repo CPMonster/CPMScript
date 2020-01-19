@@ -19,245 +19,206 @@
 
     <!-- Extra string functions -->
     <xsl:import href="../morestr.xsl"/>
-    
+
     <!-- Regular expressions for parsing URIs-->
     <xsl:import href="urisyn.xsl"/>
-
+    
 
     <!-- 
-        Representing an URI as a sequence of named elements
+        Parsing URIs
     -->
-    <xsl:function name="cpm:uri.parse">
 
+    <!-- page=1&size=10 -->
+    <xsl:function name="cpm:uriparse.params">
+        <xsl:param name="strParams"/>
+        <xsl:variable name="seqParams" select="tokenize($strParams,'&amp;')" as="xs:string*"/>
+        <xsl:for-each select="$seqParams">
+            <param>
+                <xsl:attribute name="name" select="substring-before(., '=')"/>
+                <xsl:attribute name="value" select="substring-after(., '=')"/>
+            </param>
+        </xsl:for-each>
+    </xsl:function>
+
+    <!-- wombat.html -->
+    <xsl:function name="cpm:parseuri.filename">
+        <xsl:param name="strFilename"/>
+        <xsl:choose>
+            <xsl:when test="contains($strFilename, '.')">
+                <base>
+                    <xsl:value-of select="cpm:morestr.reverseAfter($strFilename, '.')"/>
+                </base>
+                <type>
+                    <xsl:value-of select="cpm:morestr.reverseBefore($strFilename, '.')"/>
+                </type>
+            </xsl:when>
+            <xsl:otherwise>
+                <base>
+                    <xsl:value-of select="$strFilename"/>
+                </base>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:function>
+
+    <!-- c:/zoo/animals/wombat.html or zoo/animals/wombat.html -->
+    <xsl:function name="cpm:uriparse.localFile">
+        <xsl:param name="strLocalPath"/>
+        <xsl:variable name="seqFSObjects" select="tokenize($strLocalPath, '/')"/>
+        <xsl:for-each select="$seqFSObjects">
+            <xsl:choose>
+                <xsl:when test="contains(., ':')">
+                    <drive>
+                        <xsl:value-of select="substring-before(., ':')"/>
+                    </drive>
+                </xsl:when>
+                <xsl:when test="position() != last()">
+                    <folder>
+                        <xsl:copy-of select="cpm:parseuri.filename(.)"/>
+                    </folder>
+                </xsl:when>
+                <xsl:otherwise>
+                    <file>
+                        <xsl:copy-of select="cpm:parseuri.filename(.)"/>
+                    </file>
+                </xsl:otherwise>
+            </xsl:choose>
+        </xsl:for-each>
+    </xsl:function>
+
+    <!-- /zoo/animals/wombat.html?page=1&amp;size=10#food -->
+    <xsl:function name="cpm:uriparse.localPathGroup">
+        <xsl:param name="strPathGroup"/>
+        <xsl:variable name="strPath">
+            <xsl:choose>
+                <xsl:when test="starts-with($strPathGroup, '/')">
+                    <xsl:value-of select="substring-after($strPathGroup, '/')"/>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:value-of select="$strPathGroup"/>
+                </xsl:otherwise>
+            </xsl:choose>
+        </xsl:variable>
+        <xsl:choose>
+            <xsl:when test="contains($strPath, '?') and contains($strPath, '#')">
+                <xsl:copy-of select="cpm:uriparse.localFile(substring-before($strPath, '?'))"/>
+                <xsl:variable name="strParams" select="cpm:morestr.afterBefore($strPath, '?', '#')"/>
+                <xsl:copy-of select="cpm:uriparse.params($strParams)"/>
+                <anchor>
+                    <xsl:value-of select="substring-after($strPath, '#')"/>
+                </anchor>
+            </xsl:when>
+            <xsl:when test="contains($strPath, '?') and not(contains($strPath, '#'))">
+                <xsl:copy-of select="cpm:uriparse.localFile(substring-before($strPath, '?'))"/>
+                <xsl:variable name="strParams" select="substring-after($strPath, '?')"/>
+                <xsl:copy-of select="cpm:uriparse.params($strParams)"/>
+            </xsl:when>
+            <xsl:when test="not(contains($strPath, '?')) and contains($strPath, '#')">
+                <xsl:copy-of select="cpm:uriparse.localFile(substring-before($strPath, '#'))"/>
+                <anchor>
+                    <xsl:value-of select="substring-after($strPath, '#')"/>
+                </anchor>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:copy-of select="cpm:uriparse.localFile($strPath)"/>
+            </xsl:otherwise>
+        </xsl:choose>
+
+    </xsl:function>
+
+    <!-- www.example.com:80 -->
+    <xsl:function name="cpm:uriparse.hostPort">
+        <xsl:param name="strHostPort"/>
+        <xsl:choose>
+            <xsl:when test="contains($strHostPort, ':')">
+                <host>
+                    <xsl:value-of select="substring-before($strHostPort, ':')"/>
+                </host>
+                <port>
+                    <xsl:value-of select="substring-after($strHostPort, ':')"/>
+                </port>
+            </xsl:when>
+            <xsl:otherwise>
+                <host>
+                    <xsl:value-of select="$strHostPort"/>
+                </host>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:function>
+
+    <!-- adm:qwerty -->
+    <xsl:function name="cpm:uriparse.credentials">
+        <xsl:param name="strCredentials"/>
+        <xsl:choose>
+            <xsl:when test="contains($strCredentials, ':')">
+                <login>
+                    <xsl:value-of select="substring-before($strCredentials, ':')"/>
+                </login>
+                <password>
+                    <xsl:value-of select="substring-after($strCredentials, ':')"/>
+                </password>
+            </xsl:when>
+            <xsl:otherwise>
+                <login>
+                    <xsl:value-of select="$strCredentials"/>
+                </login>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:function>
+
+    <!-- adm:qwerty@www.example.com:80 -->
+    <xsl:function name="cpm:uriparse.addressGroup">
+        <xsl:param name="strAddressGroup"/>
+
+        <xsl:variable name="strAddress" select="substring-after($strAddressGroup, '//')"/>
+
+        <xsl:choose>
+            <xsl:when test="contains($strAddressGroup, '@')">
+                <xsl:variable name="strCredentials" select="substring-before($strAddress, '@')"/>
+                <xsl:copy-of select="cpm:uriparse.credentials($strCredentials)"/>
+                <xsl:variable name="strHostPort" select="substring-after($strAddress, '@')"/>
+                <xsl:copy-of select="cpm:uriparse.hostPort($strHostPort)"/>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:copy-of select="cpm:uriparse.hostPort($strAddress)"/>
+            </xsl:otherwise>
+        </xsl:choose>
+
+    </xsl:function>
+
+    <!-- adm:qwerty@www.example.com:80/zoo/animals/wombat.html?page=1&size=10#food -->
+    <xsl:function name="cpm:uriparse.protocolRemain">
+        <xsl:param name="strRemain"/>
+
+        <xsl:variable name="strStart" select="cpm:regexp.start(cpm:urisyn.addressGroup())"/>
+
+        <xsl:analyze-string select="$strRemain" regex="{$strStart}">
+            <xsl:matching-substring>
+                <xsl:copy-of select="cpm:uriparse.addressGroup(.)"/>
+            </xsl:matching-substring>
+            <xsl:non-matching-substring>
+                <xsl:copy-of select="cpm:uriparse.localPathGroup(.)"/>
+            </xsl:non-matching-substring>
+        </xsl:analyze-string>
+
+    </xsl:function>
+
+    <!-- http://adm:qwerty@www.example.com:80/zoo/animals/wombat.html?page=1&size=10#food -->
+    <xsl:function name="cpm:uriparse.uri">
         <xsl:param name="strURI"/>
 
-
-        <!-- A protocol (mandatory for an URI) -->
-
-        <xsl:variable name="strProtocol">
-            <xsl:value-of select="substring-before($strURI, ':')"/>
-        </xsl:variable>
-
-        <xsl:variable name="strRemain1">
-            <xsl:value-of select="substring-after($strURI, ':')"/>
-        </xsl:variable>
-
-
-        <!-- A host and a port -->
-
-        <xsl:variable name="strHPRegexp">
-            <xsl:text><![CDATA[^//([A-Za-z\.\-_\d]+)(:\d+)?]]></xsl:text>
-        </xsl:variable>
-
-        <xsl:variable name="strHP">
-            <xsl:choose>
-                <xsl:when test="matches($strRemain1, concat($strHPRegexp, '/'))">
-                    <xsl:value-of select="cpm:morestr.afterBefore($strRemain1, '//', '/')"/>
-                </xsl:when>
-                <xsl:when test="matches($strRemain1, concat($strHPRegexp, '#'))">
-                    <xsl:value-of select="cpm:morestr.afterBefore($strRemain1, '//', '#')"/>
-                </xsl:when>
-                <xsl:when test="matches($strRemain1, concat($strHPRegexp, '\?'))">
-                    <xsl:value-of select="cpm:morestr.afterBefore($strRemain1, '//', '?')"/>
-                </xsl:when>
-                <xsl:when test="matches($strRemain1, concat($strHPRegexp, '$'))">
-                    <xsl:value-of select="substring-after($strRemain1, '//')"/>
-                </xsl:when>
-            </xsl:choose>
-        </xsl:variable>
-
-        <xsl:variable name="strHost">
-            <xsl:if test="$strHP != ''">
-                <xsl:choose>
-                    <xsl:when test="contains($strHP, ':')">
-                        <xsl:value-of select="substring-before($strHP, ':')"/>
-                    </xsl:when>
-                    <xsl:otherwise>
-                        <xsl:value-of select="$strHP"/>
-                    </xsl:otherwise>
-                </xsl:choose>
-            </xsl:if>
-        </xsl:variable>
-
-        <xsl:variable name="strPort">
-            <xsl:if test="$strHP != '' and contains($strHP, ':')">
-                <xsl:value-of select="substring-after($strHP, ':')"/>
-            </xsl:if>
-        </xsl:variable>
-
-        <xsl:variable name="strRemain2">
-            <xsl:choose>
-                <xsl:when test="$strHP != ''">
-                    <xsl:if test="not(matches($strRemain1, concat($strHPRegexp, '$')))">
-                        <xsl:value-of select="substring($strRemain1, string-length($strHP) + 3)"/>
-                    </xsl:if>
-                </xsl:when>
-                <xsl:otherwise>
-                    <xsl:choose>
-                        <xsl:when test="starts-with($strRemain1, '///')">
-                            <xsl:value-of select="substring-after($strRemain1, '///')"/>
-                        </xsl:when>
-                        <xsl:when test="starts-with($strRemain1, '/')">
-                            <xsl:value-of select="substring-after($strRemain1, '/')"/>
-                        </xsl:when>
-                    </xsl:choose>
-                </xsl:otherwise>
-            </xsl:choose>
-        </xsl:variable>
-
-
-        <!-- Drive, folders, and file -->
-
-        <xsl:variable name="strRawLocalFile">
-            <xsl:choose>
-                <xsl:when test="contains($strRemain2, '?')">
-                    <xsl:value-of select="substring-before($strRemain2, '?')"/>
-                </xsl:when>
-                <xsl:when test="contains($strRemain2, '#')">
-                    <xsl:value-of select="substring-before($strRemain2, '#')"/>
-                </xsl:when>
-                <xsl:otherwise>
-                    <xsl:value-of select="$strRemain2"/>
-                </xsl:otherwise>
-            </xsl:choose>
-        </xsl:variable>
-
-        <xsl:variable name="strLocalFile" select="cpm:morestr.dockHead($strRawLocalFile, '/')"/>
-
-
-        <!-- Drive -->
-
-        <xsl:variable name="strDrive">
-            <xsl:if test="contains($strLocalFile, ':')">
-                <xsl:value-of select="substring-before($strLocalFile, ':')"/>
-            </xsl:if>
-        </xsl:variable>
-
-
-        <!-- Folders and a file -->
-
-        <xsl:variable name="strRawRemain3">
-            <xsl:choose>
-                <xsl:when test="contains($strLocalFile, ':')">
-                    <xsl:value-of select="substring-after($strLocalFile, ':')"/>
-                </xsl:when>
-                <xsl:otherwise>
-                    <xsl:value-of select="$strLocalFile"/>
-                </xsl:otherwise>
-            </xsl:choose>
-        </xsl:variable>
-
-        <xsl:variable name="strRemain3">
-            <xsl:value-of select="cpm:morestr.dockHead($strRawRemain3, '/')"/>
-        </xsl:variable>
-
-        <xsl:variable name="seqRawFiles" as="xs:string*">
-            <xsl:copy-of select="tokenize($strRemain3, '/')"/>
-        </xsl:variable>
-
-        <xsl:variable name="seqFolders" as="xs:string*">
-            <xsl:copy-of select="$seqRawFiles[position() != last()]"/>
-        </xsl:variable>
-
-        <xsl:variable name="strFile">
-            <xsl:value-of select="$seqRawFiles[last()]"/>
-        </xsl:variable>
-
-        <xsl:variable name="strFileNameBase">
-            <xsl:choose>
-                <xsl:when test="contains($strFile, '.')">
-                    <xsl:value-of select="cpm:morestr.reverseAfter($strFile, '.')"/>
-                </xsl:when>
-                <xsl:otherwise>
-                    <xsl:value-of select="$strFile"/>
-                </xsl:otherwise>
-            </xsl:choose>
-        </xsl:variable>
-
-        <xsl:variable name="strFileNameType">
-            <xsl:if test="contains($strFile, '.')">
-                <xsl:value-of select="cpm:morestr.reverseBefore($strFile, '.')"/>
-            </xsl:if>
-        </xsl:variable>
-
-
-        <!-- Parameters -->
-
-        <xsl:variable name="seqParams" as="xs:string*">
-            <xsl:if test="contains($strRemain2, '?')">
-                <xsl:variable name="strParams">
-                    <xsl:value-of select="cpm:morestr.leftAfterBefore($strRemain2, '?', '#')"/>
-                </xsl:variable>
-                <xsl:copy-of select="tokenize($strParams,'&amp;')"/>
-            </xsl:if>
-        </xsl:variable>
-
-
-        <!-- Anchor -->
-
-        <xsl:variable name="strAnchor">
-            <xsl:if test="contains($strRemain2, '#')">
-                <xsl:value-of select="substring-after($strRemain2, '#')"/>
-            </xsl:if>
-        </xsl:variable>
-
-
-        <!-- Representing the URI as a sequence of XML elements -->
+        <xsl:variable name="strStart" select="cpm:regexp.start(cpm:urisyn.fullProtocol())"/>
 
         <uri source="{$strURI}">
-
-            <protocol>
-                <xsl:value-of select="$strProtocol"/>
-            </protocol>
-
-            <xsl:if test="$strHost != ''">
-                <host>
-                    <xsl:value-of select="$strHost"/>
-                </host>
-                <xsl:if test="$strPort != ''">
-                    <port>
-                        <xsl:value-of select="$strPort"/>
-                    </port>
-                </xsl:if>
-            </xsl:if>
-
-            <xsl:if test="$strDrive != ''">
-                <drive>
-                    <xsl:value-of select="$strDrive"/>
-                </drive>
-            </xsl:if>
-
-            <xsl:for-each select="$seqFolders">
-                <folder>
-                    <xsl:value-of select="."/>
-                </folder>
-            </xsl:for-each>
-
-            <xsl:if test="$strFile != ''">
-                <file>
-                    <xsl:if test="$strFileNameBase != ''">
-                        <base>
-                            <xsl:value-of select="$strFileNameBase"/>
-                        </base>
-                    </xsl:if>
-                    <xsl:if test="$strFileNameType != ''">
-                        <type>
-                            <xsl:value-of select="$strFileNameType"/>
-                        </type>
-                    </xsl:if>
-                </file>
-            </xsl:if>
-
-            <xsl:for-each select="$seqParams">
-                <param name="{substring-before(.,'=')}" value="{substring-after(.,'=')}"/>
-            </xsl:for-each>
-
-            <xsl:if test="$strAnchor != ''">
-                <anchor>
-                    <xsl:value-of select="$strAnchor"/>
-                </anchor>
-            </xsl:if>
-
+            <xsl:analyze-string select="$strURI" regex="{$strStart}">
+                <xsl:matching-substring>
+                    <protocol>
+                        <xsl:value-of select="substring-before(., ':')"/>
+                    </protocol>
+                </xsl:matching-substring>
+                <xsl:non-matching-substring>
+                    <xsl:copy-of select="cpm:uriparse.protocolRemain(.)"/>
+                </xsl:non-matching-substring>
+            </xsl:analyze-string>
         </uri>
 
     </xsl:function>

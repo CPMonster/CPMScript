@@ -23,7 +23,7 @@
     <xsl:import href="uri.xsl"/>
     
     <!-- Encodings -->
-    <xsl:import href="../encoding.xsl"/>
+    <xsl:import href="encoding.xsl"/>
     
     
     <!--  

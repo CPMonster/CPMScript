@@ -21,11 +21,13 @@
     <!-- Default templates for parsing and assembling paths -->
     <xsl:import href="guts/pathgag.xsl"/>
     
+    <!-- Parsing and assembling Unix paths -->
+    <xsl:import href="guts/pathunix.xsl"/>
+    
     <!-- Parsing and assembling Windows paths -->
     <xsl:import href="guts/pathwin.xsl"/>
     
-    <!-- Parsing and assembling Unix paths -->
-    <xsl:import href="guts/pathunix.xsl"/>
+    
     
     
     <!-- 

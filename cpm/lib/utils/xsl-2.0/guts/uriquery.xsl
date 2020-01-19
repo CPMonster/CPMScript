@@ -52,25 +52,25 @@
 
     <xsl:function name="cpm:uri.protocol">
         <xsl:param name="strURI"/>
-        <xsl:variable name="xmlURI" select="cpm:uri.parse($strURI)"/>
+        <xsl:variable name="xmlURI" select="cpm:uriparse.uri($strURI)"/>
         <xsl:value-of select="$xmlURI//protocol"/>
     </xsl:function>
 
     <xsl:function name="cpm:uri.host">
         <xsl:param name="strURI"/>
-        <xsl:variable name="xmlURI" select="cpm:uri.parse($strURI)"/>
+        <xsl:variable name="xmlURI" select="cpm:uriparse.uri($strURI)"/>
         <xsl:value-of select="$xmlURI//host"/>
     </xsl:function>
 
     <xsl:function name="cpm:uri.port">
         <xsl:param name="strURI"/>
-        <xsl:variable name="xmlURI" select="cpm:uri.parse($strURI)"/>
+        <xsl:variable name="xmlURI" select="cpm:uriparse.uri($strURI)"/>
         <xsl:value-of select="$xmlURI//port"/>
     </xsl:function>
 
     <xsl:function name="cpm:uri.hostPort">
         <xsl:param name="strURI"/>
-        <xsl:variable name="xmlURI" select="cpm:uri.parse($strURI)"/>
+        <xsl:variable name="xmlURI" select="cpm:uriparse.uri($strURI)"/>
         <xsl:variable name="strHostPort">
             <xsl:value-of select="$xmlURI//host"/>
             <xsl:if test="$xmlURI//port">
@@ -83,7 +83,7 @@
 
     <xsl:function name="cpm:uri.drive">
         <xsl:param name="strURI"/>
-        <xsl:variable name="xmlURI" select="cpm:uri.parse($strURI)"/>
+        <xsl:variable name="xmlURI" select="cpm:uriparse.uri($strURI)"/>
         <xsl:variable name="strDrive">
             <xsl:if test="$xmlURI//drive">
                 <xsl:value-of select="$xmlURI//drive"/>
@@ -95,7 +95,7 @@
 
     <xsl:function name="cpm:uri.localFile">
         <xsl:param name="strURI"/>
-        <xsl:variable name="xmlURI" select="cpm:uri.parse($strURI)"/>
+        <xsl:variable name="xmlURI" select="cpm:uriparse.uri($strURI)"/>
         <xsl:variable name="strLocalFile">
             <xsl:for-each select="$xmlURI//folder">
                 <xsl:value-of select="."/>
@@ -108,7 +108,7 @@
 
     <xsl:function name="cpm:uri.parentFolder">
         <xsl:param name="strURI"/>
-        <xsl:variable name="xmlURI" select="cpm:uri.parse($strURI)"/>
+        <xsl:variable name="xmlURI" select="cpm:uriparse.uri($strURI)"/>
         <xsl:variable name="strParentFolder">
             <xsl:for-each select="$xmlURI//folder">
                 <xsl:value-of select="."/>
@@ -122,7 +122,7 @@
 
     <xsl:function name="cpm:uri.fileName">
         <xsl:param name="strURI"/>
-        <xsl:variable name="xmlURI" select="cpm:uri.parse($strURI)"/>
+        <xsl:variable name="xmlURI" select="cpm:uriparse.uri($strURI)"/>
         <xsl:variable name="strFileName">
             <xsl:value-of select="$xmlURI//file"/>
             <xsl:if test="$xmlURI//type">
@@ -135,13 +135,13 @@
 
     <xsl:function name="cpm:uri.fileNameBase">
         <xsl:param name="strURI"/>
-        <xsl:variable name="xmlURI" select="cpm:uri.parse($strURI)"/>
+        <xsl:variable name="xmlURI" select="cpm:uriparse.uri($strURI)"/>
         <xsl:value-of select="$xmlURI//base"/>
     </xsl:function>
 
     <xsl:function name="cpm:uri.fileNameType">
         <xsl:param name="strURI"/>
-        <xsl:variable name="xmlURI" select="cpm:uri.parse($strURI)"/>
+        <xsl:variable name="xmlURI" select="cpm:uriparse.uri($strURI)"/>
         <xsl:value-of select="$xmlURI//type"/>
     </xsl:function>
 
@@ -152,12 +152,15 @@
 
     <xsl:function name="cpm:uri.isRelative" as="xs:boolean">
         <xsl:param name="strURI"/>
+        <!--
         <xsl:value-of select="matches($strURI, cpm:urisyn.path())"/>
+        -->
+        <xsl:value-of select="true()"/>
     </xsl:function>
 
     <xsl:function name="cpm:uri.isLocal" as="xs:boolean">
         <xsl:param name="strURI"/>
-        <xsl:value-of select="matches($strURI, cpm:urisyn.localURI())"/>
+        <xsl:value-of select="matches($strURI, cpm:urisyn.URI())"/>
     </xsl:function>
     
     <xsl:function name="cpm:uri.isGlobal" as="xs:boolean">

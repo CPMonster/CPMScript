@@ -45,18 +45,18 @@
             </xsl:with-param>
         </xsl:call-template>
     </xsl:function>
-    
+
     <!-- Appending mandatory spaces after an item -->
     <xsl:function name="cpm:regexp.padRM">
         <xsl:param name="strItem"/>
         <xsl:call-template name="cpm.regexp.sequenceGroup">
-            <xsl:with-param name="seqItems" as="xs:string*">                
+            <xsl:with-param name="seqItems" as="xs:string*">
                 <xsl:value-of select="$strItem"/>
                 <xsl:text><![CDATA[[\s\t\n]+]]></xsl:text>
             </xsl:with-param>
         </xsl:call-template>
     </xsl:function>
-    
+
     <!-- Putting this into brackets -->
     <xsl:function name="cpm:regexp.brackets">
         <xsl:param name="strItem"/>
@@ -73,7 +73,8 @@
     <xsl:function name="cpm:regexp.multiGroup">
         <xsl:param name="strItem"/>
         <xsl:param name="strMultiplier"/>
-        <xsl:value-of select="cpm:regexp.group(concat(cpm:regexp.group($strItem), $strMultiplier))"/>
+        <xsl:value-of select="cpm:regexp.group(concat(cpm:regexp.group($strItem), $strMultiplier))"
+        />
     </xsl:function>
 
     <!-- Turning a sequence to a sequence of groups -->
@@ -233,6 +234,24 @@
             </xsl:with-param>
         </xsl:call-template>
 
-    </xsl:function>    
+    </xsl:function>
+
+    <!-- Placing a string to the beginning of a string ^... -->
+    <xsl:function name="cpm:regexp.start">
+        <xsl:param name="strItem"/>
+        <xsl:value-of select="concat('^', $strItem)"/>
+    </xsl:function>
+
+    <!-- Placing a string to the end of a string ...$ -->
+    <xsl:function name="cpm:regexp.end">
+        <xsl:param name="strItem"/>
+        <xsl:value-of select="concat($strItem, '$')"/>
+    </xsl:function>
+
+    <!-- Placing a string between start and end of a string ^...$ -->
+    <xsl:function name="cpm:regexp.wholeString">
+        <xsl:param name="strItem"/>
+        <xsl:value-of select="concat('^', $strItem, '$')"/>
+    </xsl:function>
 
 </xsl:stylesheet>
