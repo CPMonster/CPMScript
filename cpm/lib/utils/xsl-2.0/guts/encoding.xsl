@@ -19,7 +19,7 @@
     -->
 
     <!-- Replacing codes like %20 with corresponding Unicode characters -->
-    <xsl:function name="cpm:pathuri.decodeURI">
+    <xsl:function name="cpm:encoding.decodeURI">
         <xsl:param name="strItem"/>
         <xsl:value-of select="java-urldecode:decode($strItem, 'UTF-8')"/>
     </xsl:function>

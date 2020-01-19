@@ -22,52 +22,45 @@
 
 
     <!-- 
-        Detecting protocols
-    -->
-
-    <!-- A string is not a protocol name by default -->
-    <xsl:template match="*" mode="cpm.uri.isProtocol" as="xs:boolean">
-        <xsl:value-of select="false()"/>
-    </xsl:template>
-
-    <!-- Detecting standard protocols -->
-    <xsl:template match="*[lower-case(@protocol) = ('file', 'ftp', 'http', 'https')]"
-        mode="cpm.uri.isProtocol" as="xs:boolean">
-        <xsl:value-of select="true()"/>
-    </xsl:template>
-
-    <!-- A wrapper function -->
-    <xsl:function name="cpm:uri.isProtocol" as="xs:boolean">
-        <xsl:param name="strItem"/>
-        <xsl:variable name="xmlData">
-            <data protocol="{cpm:morestr.dockTail($strItem,':')}"/>
-        </xsl:variable>
-        <xsl:apply-templates select="$xmlData/data" mode="cpm.uri.isProtocol"/>
-    </xsl:function>
-
-
-    <!-- 
         Retrieving URI parts
     -->
 
+    <!-- http -->
     <xsl:function name="cpm:uri.protocol">
         <xsl:param name="strURI"/>
         <xsl:variable name="xmlURI" select="cpm:uriparse.uri($strURI)"/>
         <xsl:value-of select="$xmlURI//protocol"/>
     </xsl:function>
 
+    <!-- daRKlOrd -->
+    <xsl:function name="cpm:uri.login">
+        <xsl:param name="strURI"/>
+        <xsl:variable name="xmlURI" select="cpm:uriparse.uri($strURI)"/>
+        <xsl:value-of select="$xmlURI//login"/>
+    </xsl:function>
+    
+    <!-- qwerty -->
+    <xsl:function name="cpm:uri.password">
+        <xsl:param name="strURI"/>
+        <xsl:variable name="xmlURI" select="cpm:uriparse.uri($strURI)"/>
+        <xsl:value-of select="$xmlURI//password"/>
+    </xsl:function>
+
+    <!-- www.example.com -->
     <xsl:function name="cpm:uri.host">
         <xsl:param name="strURI"/>
         <xsl:variable name="xmlURI" select="cpm:uriparse.uri($strURI)"/>
         <xsl:value-of select="$xmlURI//host"/>
     </xsl:function>
-
+    
+    <!-- 80 -->
     <xsl:function name="cpm:uri.port">
         <xsl:param name="strURI"/>
         <xsl:variable name="xmlURI" select="cpm:uriparse.uri($strURI)"/>
         <xsl:value-of select="$xmlURI//port"/>
     </xsl:function>
 
+    <!-- www.example.com:80 -->
     <xsl:function name="cpm:uri.hostPort">
         <xsl:param name="strURI"/>
         <xsl:variable name="xmlURI" select="cpm:uriparse.uri($strURI)"/>
@@ -81,6 +74,7 @@
         <xsl:value-of select="$strHostPort"/>
     </xsl:function>
 
+    <!-- c: -->
     <xsl:function name="cpm:uri.drive">
         <xsl:param name="strURI"/>
         <xsl:variable name="xmlURI" select="cpm:uriparse.uri($strURI)"/>
@@ -93,53 +87,92 @@
         <xsl:value-of select="$strDrive"/>
     </xsl:function>
 
-    <xsl:function name="cpm:uri.localFile">
-        <xsl:param name="strURI"/>
-        <xsl:variable name="xmlURI" select="cpm:uriparse.uri($strURI)"/>
-        <xsl:variable name="strLocalFile">
-            <xsl:for-each select="$xmlURI//folder">
-                <xsl:value-of select="."/>
-                <xsl:text>/</xsl:text>
-            </xsl:for-each>
-            <xsl:value-of select="$xmlURI//file"/>
-        </xsl:variable>
-        <xsl:value-of select="$strLocalFile"/>
+    <!-- animals or wombat.html -->
+    <xsl:template match="drive" mode="cpm.uri.serialize">
+        <xsl:value-of select="."/>
+        <xsl:text>:</xsl:text>        
+    </xsl:template>
+    
+    <xsl:template match="folder | file" mode="cpm.uri.serialize">
+        <xsl:value-of select="base"/>
+        <xsl:if test="type">
+            <xsl:text>.</xsl:text>
+            <xsl:value-of select="type"/>
+        </xsl:if>
+    </xsl:template>        
+        
+    <xsl:function name="cpm:uri.serialize">
+        <xsl:param name="xmlFile"/>        
+        <xsl:apply-templates select="$xmlFile" mode="cpm.uri.serialize"/>
     </xsl:function>
 
+    <!-- c:/zoo/animals/wombat.html -->
+    <xsl:function name="cpm:uri.localFile">
+        <xsl:param name="strURI"/>
+
+        <xsl:variable name="xmlURI" select="cpm:uriparse.uri($strURI)"/>
+
+        <xsl:variable name="strLocalFile">
+
+            <xsl:if test="$xmlURI//drive">
+                <xsl:value-of select="$xmlURI//drive"/>
+                <xsl:text>:/</xsl:text>
+            </xsl:if>
+
+            <xsl:for-each select="$xmlURI//folder">
+                <xsl:apply-templates select="." mode="cpm.uri.filename"/>
+                <xsl:text>/</xsl:text>
+            </xsl:for-each>
+
+            <xsl:apply-templates select="$xmlURI//file" mode="cpm.uri.filename"/>
+
+        </xsl:variable>
+
+        <xsl:value-of select="$strLocalFile"/>
+
+    </xsl:function>
+
+    <!-- c:/zoo/animals -->
     <xsl:function name="cpm:uri.parentFolder">
         <xsl:param name="strURI"/>
         <xsl:variable name="xmlURI" select="cpm:uriparse.uri($strURI)"/>
+
         <xsl:variable name="strParentFolder">
+
+            <xsl:if test="$xmlURI//drive">
+                <xsl:value-of select="$xmlURI//drive"/>
+                <xsl:text>:/</xsl:text>
+            </xsl:if>
+
             <xsl:for-each select="$xmlURI//folder">
-                <xsl:value-of select="."/>
+                <xsl:apply-templates select="." mode="cpm.uri.filename"/>
                 <xsl:if test="position() != last()">
                     <xsl:text>/</xsl:text>
                 </xsl:if>
             </xsl:for-each>
-        </xsl:variable>
-        <xsl:value-of select="$strParentFolder"/>
-    </xsl:function>
 
-    <xsl:function name="cpm:uri.fileName">
+        </xsl:variable>
+
+        <xsl:value-of select="$strParentFolder"/>
+        
+    </xsl:function>
+    
+    <!-- wombat.html -->
+    <xsl:function name="cpm:uri.filename">
         <xsl:param name="strURI"/>
         <xsl:variable name="xmlURI" select="cpm:uriparse.uri($strURI)"/>
-        <xsl:variable name="strFileName">
-            <xsl:value-of select="$xmlURI//file"/>
-            <xsl:if test="$xmlURI//type">
-                <xsl:text>.</xsl:text>
-                <xsl:value-of select="$xmlURI//type"/>
-            </xsl:if>
-        </xsl:variable>
-        <xsl:value-of select="$strFileName"/>
+        <xsl:apply-templates select="$xmlURI//file" mode="cpm.uri.filename"/>        
     </xsl:function>
-
-    <xsl:function name="cpm:uri.fileNameBase">
+    
+    <!-- wombat -->
+    <xsl:function name="cpm:uri.base">
         <xsl:param name="strURI"/>
         <xsl:variable name="xmlURI" select="cpm:uriparse.uri($strURI)"/>
         <xsl:value-of select="$xmlURI//base"/>
     </xsl:function>
-
-    <xsl:function name="cpm:uri.fileNameType">
+    
+    <!-- html -->
+    <xsl:function name="cpm:uri.type">
         <xsl:param name="strURI"/>
         <xsl:variable name="xmlURI" select="cpm:uriparse.uri($strURI)"/>
         <xsl:value-of select="$xmlURI//type"/>
@@ -162,17 +195,17 @@
         <xsl:param name="strURI"/>
         <xsl:value-of select="matches($strURI, cpm:urisyn.URI())"/>
     </xsl:function>
-    
+
     <xsl:function name="cpm:uri.isGlobal" as="xs:boolean">
         <xsl:param name="strURI"/>
         <xsl:value-of select="matches($strURI, cpm:urisyn.globalURI())"/>
     </xsl:function>
-    
+
     <xsl:function name="cpm:uri.isURI" as="xs:boolean">
         <xsl:param name="strURI"/>
         <xsl:value-of select="cpm:uri.isLocal($strURI) or cpm:uri.isGlobal($strURI)"/>
     </xsl:function>
-    
+
     <xsl:function name="cpm:uri.isValid" as="xs:boolean">
         <xsl:param name="strURI"/>
         <xsl:value-of select="cpm:uri.isRelative($strURI) or cpm:uri.isURI($strURI)"/>
