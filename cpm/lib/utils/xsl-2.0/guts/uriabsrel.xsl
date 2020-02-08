@@ -109,4 +109,22 @@
 
     </xsl:function>
 
+
+    <!-- 
+        Detecting accurate base URI 
+    -->
+
+    <xsl:function name="cpm:uri.baseURI">
+        <xsl:param name="xmlItem"/>
+        <xsl:variable name="strTmp" select="base-uri($xmlItem)"/>
+        <xsl:choose>
+            <xsl:when test="starts-with($strTmp, 'file:/')">
+                <xsl:value-of select="$strTmp"/>                
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="concat('file:/', $strTmp)"/>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:function>
+
 </xsl:stylesheet>

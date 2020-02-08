@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." name="cpmConfig">
+    
+    <!-- Defining readers -->
+    <import file="readers.xml" as="readers" prefixseparator="."/>
+    
+    <!-- Syetem configuration -->
+    <property name="systemTmp" value="c:/tmp/cpm2"/>
+    
+    <!-- Java -->
+    <property name="javaExe" value="java.exe"/>
+    <property name="javaMinMemory" value="-Xms500m"/>
+    <property name="javaMaxMemory" value="-Xmx500m"/>
+        
+    <!-- Saxon -->
+    <property name="saxon.jarClasspath" value="C:/privat/misha/cpmon/dev/cpm/lib/saxon/saxon9.jar"/>
+    <property name="cpm:cfg.saxon.transformerFactory" value="net.sf.saxon.TransformerFactoryImpl"/>
+    
+    
+    
+    <!-- Resolving URIs -->
+    <property name="apacheResolverJar" value="C:\privat\misha\cpmon\dev\cpm\lib\apache\bin\resolver.jar "/>
+    <!--<property name="systemXMLCatalog" value="../cfg/catalog.xml" relative="true"/>-->
+    <property name="systemXMLCatalog" value="catalog.xml" relative="true"/>
+  
+</project>

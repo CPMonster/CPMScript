@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." name="cpmMain" default="main">
+
+    <!-- Loading the script configuration -->
+    <import file="../../../cfg/script.xml"/>
+
+    <property name="job2antXSLPath" value="../xsl-2.0/job2ant.xsl"/>
+
+    <echo>${job2antXSLPath}</echo>
+
+    <!-- Assembling a path for an Ant build file -->
+    <property name="antBuild" value="${systemTmp}/build.xml"/>
+
+    <echo>${systemTmp}</echo>
+
+    <echo>${antBuild}</echo>
+
+    <echo>${cpmJob}</echo>
+
+    <echo>${saxonJar}</echo>
+
+    <target name="filtree">
+        <property name=""></property>
+        
+        
+        
+        
+        <local name="test"/>
+
+        <property name="test" value="target1"/>
+        <echo>${test}</echo>
+
+    </target>
+
+    <target name="target2">
+        <local name="test"/>
+        <property name="test" value="target2"/>
+        <echo>${test}</echo>
+
+    </target>
+
+
+
+    <!-- Transforming a compact build file to an expanded one -->
+    <target name="assembleAntBuild">
+        <xslt in="${cpmJob}" out="${antBuild}" style="${job2antXSLPath}">
+            <classpath path="${saxonJar}"/>
+            <factory name="net.sf.saxon.TransformerFactoryImpl"/>
+            <xmlcatalog>
+                <catalogpath path="${systemXMLCatalog}"/>
+            </xmlcatalog>
+        </xslt>
+    </target>
+
+
+    <!-- Running Ant for the expanded build file -->
+    <!--
+    <target name="runAntBuild" depends="assembleAntBuild">
+        <ant target="cpmJob" antfile="${antBuild}"/>
+    </target>
+    -->
+
+    <!-- The main target in this build file -->
+    <!--    
+    <target name="main" depends="runAntBuild"/>
+    -->
+
+    <target name="main" depends="assembleAntBuild, target1, target2"/>
+
+</project>

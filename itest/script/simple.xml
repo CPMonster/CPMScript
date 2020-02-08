@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." name="Troubleshooting" default="main">
+
+    <description>Publishing troubleshooting content</description>
+
+    <target name="Flowcharts" description="Creating SVG flowcharts">
+        <xslt in="dita" out="svg" style="Troubleshooting/xsl-2.0/dita2gv.xsl">
+            <param name="width">15cm</param>
+            <param name="height">20cm</param>            
+        </xslt>        
+    </target>
+    
+   <target name="main" depends="Flowcharts"/>
+
+</project>

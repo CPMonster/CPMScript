@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." name="readers">
+    
+    <target name="filetree">
+        <exec executable="../readers/filetree/bat/filtree.bat">
+            <arg value="${source}"/>
+            <arg value="${tmp}"/>
+        </exec>
+    </target>
+  
+</project>
