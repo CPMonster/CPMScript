@@ -19,6 +19,9 @@
 
     <!-- Parsing URIs -->
     <xsl:import href="uriparse.xsl"/>
+    
+    <!-- Serializing URI -->
+    <xsl:import href="uriserialize.xsl"/>
 
 
     <!-- 
@@ -87,49 +90,7 @@
         <xsl:value-of select="$strDrive"/>
     </xsl:function>
 
-    <!-- Serializing URIs -->
     
-    <xsl:template match="protocol" mode="cpm.uri.serialize">
-        <xsl:value-of select="."/>
-        <xsl:text>:</xsl:text>        
-    </xsl:template>
-    
-    <xsl:template match="password" mode="cpm.uri.serialize">
-        <xsl:value-of select="."/>               
-    </xsl:template>
-    
-    <xsl:template match="login" mode="cpm.uri.serialize">
-        <xsl:value-of select="."/>                
-    </xsl:template>
-    
-    <xsl:template match="host" mode="cpm.uri.serialize">
-        <xsl:value-of select="."/>                
-    </xsl:template>
-    
-    <xsl:template match="port" mode="cpm.uri.serialize">
-        <xsl:value-of select="."/>                
-    </xsl:template>        
-    
-    <xsl:template match="drive" mode="cpm.uri.serialize">
-        <xsl:value-of select="."/>
-        <xsl:text>:</xsl:text>        
-    </xsl:template>
-            
-    <xsl:template match="folder | file" mode="cpm.uri.serialize">
-        <xsl:value-of select="base"/>
-        <xsl:if test="type">
-            <xsl:text>.</xsl:text>
-            <xsl:value-of select="type"/>
-        </xsl:if>
-    </xsl:template>
-    
-            
-        
-    <!-- animals or wombat.html -->   
-    <xsl:function name="cpm:uri.serialize">
-        <xsl:param name="xmlFile"/>        
-        <xsl:apply-templates select="$xmlFile" mode="cpm.uri.serialize"/>
-    </xsl:function>
 
     <!-- c:/zoo/animals/wombat.html -->
     <xsl:function name="cpm:uri.localFile">
@@ -160,50 +121,17 @@
     <!-- c:/zoo/animals -->
     <xsl:function name="cpm:uri.parentFolder">
         <xsl:param name="strURI"/>
-        <xsl:variable name="xmlURI" select="cpm:uriparse.uri($strURI)"/>
-
-        <xsl:variable name="strParentFolder">
-            
-            <xsl:apply-templates select="$xmlURI/protocol" mode="cpm.uri.serialize"/>
-            
-            <xsl:if test="$xmlURI//protocol">
-                <xsl:text>/</xsl:text>
-            </xsl:if>
-            
-            <xsl:apply-templates select="$xmlURI//password" mode="cpm.uri.serialize"/>
-            
-            <xsl:if test="$xmlURI//password">
-                <xsl:text>:</xsl:text>
-            </xsl:if>
-            
-            <xsl:apply-templates select="$xmlURI//login" mode="cpm.uri.serialize"/>
-            
-            <xsl:if test="$xmlURI//login">
-                <xsl:text>@</xsl:text>
-            </xsl:if>
-            
-            <xsl:apply-templates select="$xmlURI//host" mode="cpm.uri.serialize"/>
-            
-            <xsl:if test="$xmlURI//host">
-                <xsl:text>/</xsl:text>
-            </xsl:if>
-
-            <xsl:if test="$xmlURI//drive">
-                <xsl:value-of select="$xmlURI//drive"/>
-                <xsl:text>:/</xsl:text>
-            </xsl:if>
-
-            <xsl:for-each select="$xmlURI//folder">
-                <xsl:apply-templates select="." mode="cpm.uri.serialize"/>
-                <xsl:if test="position() != last()">
-                    <xsl:text>/</xsl:text>
-                </xsl:if>
-            </xsl:for-each>
-
-        </xsl:variable>
-
-        <xsl:value-of select="$strParentFolder"/>
         
+        <xsl:variable name="xmlURI" select="cpm:uriparse.uri($strURI)"/>
+        
+        <xsl:variable name="xmlParentFolder">
+            <uri>
+                <xsl:copy-of select="$xmlURI/*[following-sibling::file]"/>
+            </uri>
+        </xsl:variable>
+                
+        <xsl:value-of select="cpm:uri.serialize($xmlParentFolder)"/>
+                
     </xsl:function>
     
     <!-- wombat.html -->

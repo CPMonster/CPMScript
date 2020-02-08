@@ -58,7 +58,9 @@
         <xsl:value-of
             select="cpm:uri.relative('file:/c:/wombat.html', 'file:/d:/wombat.jpg')"/>
 
-
+        <xsl:text>&#10;</xsl:text>
+        <xsl:text>Parent folder: </xsl:text>
+        <xsl:value-of select="cpm:uri.parentFolder('file:/f:/foo/bar/figar.txt')"/>
 
 
     </xsl:template>
