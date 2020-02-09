@@ -18,7 +18,7 @@
     -->
 
     <!-- Working with URIs -->
-    <xsl:import href="uriquery.xsl"/>
+    <xsl:import href="urinorm.xsl"/>
 
 
     <!-- 
@@ -105,7 +105,7 @@
             </xsl:if>
         </xsl:variable>
 
-        <xsl:value-of select="concat($strBase, $strSep, $strRelative)"/>
+        <xsl:value-of select="cpm:uri.normalize(concat($strBase, $strSep, $strRelative))"/>
 
     </xsl:function>
 
@@ -125,6 +125,6 @@
                 <xsl:value-of select="concat('file:/', $strTmp)"/>
             </xsl:otherwise>
         </xsl:choose>
-    </xsl:function>
+    </xsl:function>      
 
 </xsl:stylesheet>

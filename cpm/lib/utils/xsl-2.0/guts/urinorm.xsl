@@ -26,8 +26,10 @@
     <!-- 
         Normalizing an URI (suppressing redundant . and ..)
     -->
-    <xsl:function name="cpm:pathuri.normalizeURI">
-        
+    
+    <xsl:function name="cpm:uri.normalize">
+        <xsl:param name="strURI"/>
+        <xsl:value-of select="$strURI"/>
     </xsl:function>
     
 </xsl:stylesheet>

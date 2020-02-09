@@ -1,26 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project basedir="." name="cpmConfig">
     
-    <!-- Defining readers -->
+    
+    <!-- The default configuration settings -->
+    <property name="default.tmpFolder" value="c:/tmp/cpm 2"/>
+    <property name="default.XMLCatalog" value="${cpmRootPath}/cfg/catalog.xml"/>
+    
+    
+    <!-- 
+        The software components
+    -->
+    
+    <!-- Readers -->    
     <import file="readers.xml" as="readers" prefixseparator="."/>
     
-    <!-- Syetem configuration -->
-    <property name="systemTmp" value="c:/tmp/cpm2"/>
-    
     <!-- Java -->
-    <property name="javaExe" value="java.exe"/>
-    <property name="javaMinMemory" value="-Xms500m"/>
-    <property name="javaMaxMemory" value="-Xmx500m"/>
+    <property name="java.exePath" value="java.exe"/>
+    <property name="java.minMemory" value="-Xms500m"/>
+    <property name="java.maxMemory" value="-Xmx500m"/>
         
     <!-- Saxon -->
-    <property name="saxon.jarClasspath" value="C:/privat/misha/cpmon/dev/cpm/lib/saxon/saxon9.jar"/>
-    <property name="cpm:cfg.saxon.transformerFactory" value="net.sf.saxon.TransformerFactoryImpl"/>
-    
-    
-    
-    <!-- Resolving URIs -->
-    <property name="apacheResolverJar" value="C:\privat\misha\cpmon\dev\cpm\lib\apache\bin\resolver.jar "/>
-    <!--<property name="systemXMLCatalog" value="../cfg/catalog.xml" relative="true"/>-->
-    <property name="systemXMLCatalog" value="catalog.xml" relative="true"/>
+    <property name="saxon.jarClasspath" location="${cpmRootPath}/blades/saxon/saxon9.jar"/>
+    <property name="saxon.transformerFactory" value="net.sf.saxon.TransformerFactoryImpl"/>
+            
+    <!-- Resolving URIs -->       
+    <property name="resolver.jarClasspath" value="${cpmRootPath}/blades/resolver/resolver.jar"/>        
   
 </project>

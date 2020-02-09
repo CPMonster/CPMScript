@@ -1,55 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project basedir="." name="cpmMain" default="main">
 
-    <!-- Loading the script configuration -->
+    <!-- Defining a base for building the CPM components paths -->
+    <property name="cpmRootPath" location="../../../"/>
+
+    <!-- Using a script configuration file -->
     <import file="../../../cfg/script.xml"/>
-
+    
+    
+    <!-- 
+        Setting up folders
+    -->
+    
+    <!-- Creating a default temporary folder -->
+    <mkdir dir="${default.tmpFolder}"/>
+        
+    
     <property name="job2antXSLPath" value="../xsl-2.0/job2ant.xsl"/>
-
-    <echo>${job2antXSLPath}</echo>
-
+        
     <!-- Assembling a path for an Ant build file -->
-    <property name="antBuild" value="${systemTmp}/build.xml"/>
-
-    <echo>${systemTmp}</echo>
-
-    <echo>${antBuild}</echo>
-
-    <echo>${cpmJob}</echo>
-
-    <echo>${saxonJar}</echo>
-
-    <target name="filtree">
-        <property name=""></property>
-        
-        
-        
-        
-        <local name="test"/>
-
-        <property name="test" value="target1"/>
-        <echo>${test}</echo>
-
-    </target>
-
-    <target name="target2">
-        <local name="test"/>
-        <property name="test" value="target2"/>
-        <echo>${test}</echo>
-
-    </target>
-
-
-
+    <property name="antBuild" value="${default.tmpFolder}/build.xml"/>
+          
     <!-- Transforming a compact build file to an expanded one -->
     <target name="assembleAntBuild">
-        <xslt in="${cpmJob}" out="${antBuild}" style="${job2antXSLPath}">
-            <classpath path="${saxonJar}"/>
-            <factory name="net.sf.saxon.TransformerFactoryImpl"/>
-            <xmlcatalog>
-                <catalogpath path="${systemXMLCatalog}"/>
-            </xmlcatalog>
-        </xslt>
+        <delete file="${antBuild}"/>    
+        <java classname="net.sf.saxon.Transform" fork="true">
+            <classpath path="${saxon.jarClasspath}"/>
+            <classpath path="${resolver.jarClasspath}"/>     
+            <jvmarg value="${java.minMemory}"/>
+            <jvmarg value="${java.maxMemory}"/>
+            <jvmarg line='-Dxml.catalog.files="${default.XMLCatalog}"'/>
+            <arg value="-r:org.apache.xml.resolver.tools.CatalogResolver"/>
+            <arg value="-x:org.apache.xml.resolver.tools.ResolvingXMLReader"/>
+            <arg value="-y:org.apache.xml.resolver.tools.ResolvingXMLReader"/>            
+            <arg value="-o"/>
+            <arg value="${antBuild}"/>
+            <arg value="${cpmJob}"/>
+            <arg value="${job2antXSLPath}"/>            
+            <arg line='GLOBAL.default.tmpFolder="${default.tmpFolder}"'/>  
+            <arg value="GLOBAL.os.name=${os.name}"/>
+        </java>                
     </target>
 
 
@@ -65,6 +55,6 @@
     <target name="main" depends="runAntBuild"/>
     -->
 
-    <target name="main" depends="assembleAntBuild, target1, target2"/>
+    <target name="main" depends="assembleAntBuild"/>
 
 </project>

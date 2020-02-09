@@ -21,33 +21,6 @@
     <xsl:import href="../../utils/xsl-2.0/pathuri.xsl"/>
 
 
-    <!-- 
-        Loading configuration files
-    -->
-
-    <xsl:function name="cpm:cfg.CfgFolder">
-        <xsl:variable name="strMyURI" select="cpm:uri.baseURI(document('config.xsl'))"/>
-        <xsl:value-of select="cpm:uri.absolute(cpm:uri.parentFolder($strMyURI), '../../../cfg')"/>
-    </xsl:function>
-
-    <!-- The main script configuration file -->
-    <xsl:function name="cpm:cfg.CfgScriptURI">
-        <xsl:value-of select="cpm:uri.absolute(cpm:cfg.CfgFolder(), 'script.xml')"/>
-    </xsl:function>
-
-    <!-- General script configuration -->
-    <xsl:variable name="GLOBAL_CfgScript">
-        <xsl:copy-of select="document(cpm:cfg.CfgScriptURI())"/>
-    </xsl:variable>
-
-    <!-- A list of the available readers -->
-    <xsl:variable name="GLOBAL_CfgReaders">        
-        <xsl:variable name="strReadersHref"
-            select="$GLOBAL_CfgScript//import[cpm:polystr.equal(@as, 'readers', 'case')]/@file"/>
-        <xsl:copy-of select="document(cpm:uri.absolute(cpm:cfg.CfgFolder(), $strReadersHref))"/>        
-    </xsl:variable>
-
-
     <!--
         Accessing property values
     -->
@@ -65,13 +38,88 @@
     <!-- A wrapper function -->
     <xsl:function name="cpm:cfg.property">
         <xsl:param name="strPropName"/>
-        <xsl:apply-templates select="$GLOBAL_CfgScript//property[@name = $strPropName]"
+        <xsl:apply-templates select="$GLOBAL.cfgScript//property[@name = $strPropName]"
             mode="cpm.cfg.value"/>
     </xsl:function>
 
 
-    <xsl:function name="cpm:config.cpmFolder"> </xsl:function>
+    <!-- 
+        The configuration parameters
+    -->
+    
+    <!-- The OS name -->
+    <xsl:param name="GLOBAL.os.name"/>
+    
+    <!-- System temporary folder -->
+    <xsl:param name="GLOBAL.default.tmpFolder"/>
+    
+    
+    <!-- 
+        Detecting the environment parameters
+    -->
+    
+    <!-- Detecting the OS type -->
+    <xsl:function name="cpm:cfg.osType">
+        <xsl:choose>
+            <xsl:when test="contains(lower-case($GLOBAL.os.name),'linux')">
+                <xsl:text>linux</xsl:text>
+            </xsl:when>
+            <xsl:when test="contains(lower-case($GLOBAL.os.name),'mac')">
+                <xsl:text>macos</xsl:text>
+            </xsl:when>
+            <xsl:when test="contains(lower-case($GLOBAL.os.name),'windows')">
+                <xsl:text>windows</xsl:text>
+            </xsl:when>            
+        </xsl:choose>
+    </xsl:function>
+    
+    
+    <!-- 
+        Loading configuration files
+    -->
+    
+    <xsl:function name="cpm:cfg.cfgFolder">
+        <xsl:variable name="strMyURI" select="cpm:uri.baseURI(document('config.xsl'))"/>
+        <xsl:value-of select="cpm:uri.absolute(cpm:uri.parentFolder($strMyURI), '../../../cfg')"/>
+    </xsl:function>
+    
+    <!-- The main script configuration file -->
+    <xsl:function name="cpm:cfg.cfgScriptURI">
+        <xsl:value-of select="cpm:uri.absolute(cpm:cfg.cfgFolder(), 'script.xml')"/>
+    </xsl:function>
+    
+    <!-- General script configuration -->
+    <xsl:variable name="GLOBAL.cfgScript">
+        <xsl:copy-of select="document(cpm:cfg.cfgScriptURI())"/>
+    </xsl:variable>
+    
+    <!-- A list of the available readers -->
+    <xsl:variable name="GLOBAL.cfgReaders">
+        <xsl:variable name="strReadersHref"
+            select="$GLOBAL.cfgScript//import[cpm:polystr.equal(@as, 'readers', 'case')]/@file"/>
+        <xsl:copy-of select="document(cpm:uri.absolute(cpm:cfg.cfgFolder(), $strReadersHref))"/>
+    </xsl:variable>
+    
+    
+    <!-- 
+        Assembling URIs for the essential folders
+    -->
+    
+    <xsl:function name="cpm:cfg.cpmFolder">
+        <xsl:value-of select="cpm:uri.absolute(cpm:cfg.cfgFolder(), '..')"/>
+    </xsl:function>
+    
+    <xsl:function name="cpm:cfg.defaultTmpFolder">
+        <xsl:value-of select="cpm:path.2uri($GLOBAL.default.tmpFolder, cpm:cfg.osType())"/>
+    </xsl:function>
 
+
+    <!-- 
+        Assembling URIs, paths, and values for essential components
+    -->
+    
+    <!-- Saxon -->
+        
     <xsl:function name="cpm:cfg.saxon.jarClasspath">
         <xsl:value-of select="cpm:cfg.property('saxon.jarClasspath')"/>
     </xsl:function>
