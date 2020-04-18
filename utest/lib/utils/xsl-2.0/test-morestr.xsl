@@ -122,7 +122,7 @@
         <xsl:text>&#10;</xsl:text>
         <xsl:value-of select="cpm:strset.union('cow', 'rabbit', '\s*,\s e.g. \\', 'CASE')"/>
         <xsl:text>&#10;</xsl:text>
-        <xsl:text>&#10;</xsl:text>        
+        <xsl:text>&#10;</xsl:text>
 
         <xsl:text>cpm:strset.intersection()</xsl:text>
         <xsl:text>&#10;</xsl:text>
@@ -143,7 +143,7 @@
         <xsl:value-of select="cpm:strlist.append('cow', 'rabbit', '\s*,\s e.g. ;\s')"/>
         <xsl:text>&#10;</xsl:text>
         <xsl:text>&#10;</xsl:text>
-                        
+
         <xsl:text>cpm:strset.equal()</xsl:text>
         <xsl:text>&#10;</xsl:text>
         <xsl:value-of
@@ -153,6 +153,74 @@
             select="cpm:strset.equal('cow, Horse, cat', 'rabbit, cat, Cow', '\s*,\s*', 'CASE')"/>
         <xsl:text>&#10;</xsl:text>
         <xsl:text>&#10;</xsl:text>
+        <xsl:text>&#10;</xsl:text>
+        <xsl:text>&#10;</xsl:text>
+
+        <xsl:text>Splitting text into lines</xsl:text>
+        <xsl:text>&#10;</xsl:text>
+        <xsl:text>&#10;</xsl:text>
+        <xsl:variable name="strText">
+            <xsl:text>On the farm, every Friday&#10;</xsl:text>
+            <xsl:text>On the farm, it's rabbit pie day.&#10;</xsl:text>
+            <xsl:text>So, every Friday that ever comes along,&#10;</xsl:text>
+            <xsl:text>I get up early and sing this little song&#10;</xsl:text>
+            <xsl:text>&#10;</xsl:text>
+            <xsl:text># Chorus:&#10;</xsl:text>
+            <xsl:text>Run rabbit – run rabbit – Run! Run! Run!&#10;</xsl:text>
+            <xsl:text>Run rabbit – run rabbit – Run! Run! Run!&#10;</xsl:text>
+            <xsl:text>Bang! Bang! Bang! Bang!&#10;</xsl:text>
+            <xsl:text>Goes the farmer's gun.&#10;</xsl:text>
+            <xsl:text>Run, rabbit, run, rabbit, run.</xsl:text>
+        </xsl:variable>
+
+        <xsl:for-each select="cpm:strlines.splitExclude($strText, '')">
+            <xsl:value-of select="."/>
+            <xsl:text>&#10;</xsl:text>
+        </xsl:for-each>
+        
+        <xsl:text>&#10;</xsl:text>
+        <xsl:text>&#10;</xsl:text>
+        <xsl:text>Suppressing redundant lines in a text</xsl:text>
+        <xsl:text>&#10;</xsl:text>
+        <xsl:text>&#10;</xsl:text>
+        
+        <xsl:for-each select="cpm:strlines.splitExclude($strText, '^[\s\t]*$')">
+            <xsl:value-of select="."/>
+            <xsl:text>&#10;</xsl:text>
+        </xsl:for-each>
+        
+        <xsl:text>&#10;</xsl:text>
+        <xsl:text>&#10;</xsl:text>
+        
+        <xsl:for-each select="cpm:strlines.splitExclude($strText, '(^(\s*#).*)|(^[\s\t]*$)')">
+            <xsl:value-of select="."/>
+            <xsl:text>&#10;</xsl:text>
+        </xsl:for-each>
+        
+        <xsl:text>&#10;</xsl:text>
+        <xsl:text>&#10;</xsl:text>
+        <xsl:text>0A0D</xsl:text>
+        <xsl:text>&#10;</xsl:text>
+        <xsl:text>&#10;</xsl:text>
+        
+        <xsl:variable name="strText0A0D">
+            <xsl:text>On the farm, every Friday&#10;&#13;</xsl:text>
+            <xsl:text>On the farm, it's rabbit pie day.&#10;&#13;</xsl:text>
+            <xsl:text>So, every Friday that ever comes along,&#10;&#13;</xsl:text>
+            <xsl:text>I get up early and sing this little song&#10;&#13;</xsl:text>
+            <xsl:text>&#10;&#13;</xsl:text>
+            <xsl:text># Chorus:&#10;&#13;</xsl:text>
+            <xsl:text>Run rabbit – run rabbit – Run! Run! Run!&#10;&#13;</xsl:text>
+            <xsl:text>Run rabbit – run rabbit – Run! Run! Run!&#10;&#13;</xsl:text>
+            <xsl:text>Bang! Bang! Bang! Bang!&#10;&#13;</xsl:text>
+            <xsl:text>Goes the farmer's gun.&#10;&#13;</xsl:text>
+            <xsl:text>Run, rabbit, run, rabbit, run.</xsl:text>
+        </xsl:variable>
+        
+        <xsl:for-each select="cpm:strlines.splitExclude($strText0A0D, '(^(\s*#).*)|(^[\s\t]*$)')">
+            <xsl:value-of select="."/>
+            <xsl:text>&#10;</xsl:text>
+        </xsl:for-each>
 
 
     </xsl:template>

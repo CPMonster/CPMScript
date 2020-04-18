@@ -21,111 +21,121 @@
     <xsl:import href="../../utils/xsl-2.0/pathuri.xsl"/>
 
 
+    <!-- 
+        Retrieving a temporary configuration file
+    -->
+
+    <!-- Temporary configuration file path -->
+    <xsl:param name="cpm.cfg.tmpCfgPath"/>
+
+    <!-- Temporary configuration file -->
+    <xsl:variable name="cpm.cfg.tmpCfg" select="document($cpm.cfg.tmpCfgPath)"/>
+
+
     <!--
         Accessing property values
     -->
 
-    <!-- Simple properties -->
-    <xsl:template match="property" mode="cpm.cfg.value">
-        <xsl:value-of select="."/>
-    </xsl:template>
-
-    <!-- Properties having a @value -->
-    <xsl:template match="property[@value]">
-        <xsl:value-of select="@value"/>
-    </xsl:template>
-
-    <!-- A wrapper function -->
-    <xsl:function name="cpm:cfg.property">
+    <!-- Retrieving a configuration property value by the name -->
+    <xsl:function name="cpm:cfg.value">
         <xsl:param name="strPropName"/>
-        <xsl:apply-templates select="$GLOBAL.cfgScript//property[@name = $strPropName]"
-            mode="cpm.cfg.value"/>
+        <xsl:variable name="strPropTag" select="concat($strPropName, '=')"/>
+        <xsl:variable name="strProp" select="$cpm.cfg.tmpCfg//prop[starts-with(., $strPropTag)]"/>
+        <xsl:value-of select="substring-after($strProp, '=')"/>
+    </xsl:function>
+
+    <!-- Retrieving an URI by the property name -->
+    <xsl:function name="cpm:cfg.uri">
+        <xsl:param name="strPropName"/>
+        <xsl:value-of select="cpm:path.2uri(cpm:cfg.value($strPropName), cpm:cfg.osType())"/>
     </xsl:function>
 
 
     <!-- 
-        The configuration parameters
+        Detecting environment parameter values
     -->
-    
-    <!-- The OS name -->
-    <xsl:param name="GLOBAL.os.name"/>
-    
-    <!-- System temporary folder -->
-    <xsl:param name="GLOBAL.default.tmpFolder"/>
-    
-    
-    <!-- 
-        Detecting the environment parameters
-    -->
-    
+
     <!-- Detecting the OS type -->
     <xsl:function name="cpm:cfg.osType">
+        <xsl:variable name="strOsType" select="lower-case(cpm:cfg.value('cpm.sys.osType'))"/>
         <xsl:choose>
-            <xsl:when test="contains(lower-case($GLOBAL.os.name),'linux')">
+            <xsl:when test="contains($strOsType, 'linux')">
                 <xsl:text>linux</xsl:text>
             </xsl:when>
-            <xsl:when test="contains(lower-case($GLOBAL.os.name),'mac')">
+            <xsl:when test="contains($strOsType, 'mac')">
                 <xsl:text>macos</xsl:text>
             </xsl:when>
-            <xsl:when test="contains(lower-case($GLOBAL.os.name),'windows')">
+            <xsl:when test="contains($strOsType, 'windows')">
                 <xsl:text>windows</xsl:text>
-            </xsl:when>            
+            </xsl:when>
         </xsl:choose>
     </xsl:function>
-    
-    
-    <!-- 
-        Loading configuration files
-    -->
-    
-    <xsl:function name="cpm:cfg.cfgFolder">
-        <xsl:variable name="strMyURI" select="cpm:uri.baseURI(document('config.xsl'))"/>
-        <xsl:value-of select="cpm:uri.absolute(cpm:uri.parentFolder($strMyURI), '../../../cfg')"/>
-    </xsl:function>
-    
-    <!-- The main script configuration file -->
-    <xsl:function name="cpm:cfg.cfgScriptURI">
-        <xsl:value-of select="cpm:uri.absolute(cpm:cfg.cfgFolder(), 'script.xml')"/>
-    </xsl:function>
-    
-    <!-- General script configuration -->
-    <xsl:variable name="GLOBAL.cfgScript">
-        <xsl:copy-of select="document(cpm:cfg.cfgScriptURI())"/>
-    </xsl:variable>
-    
-    <!-- A list of the available readers -->
-    <xsl:variable name="GLOBAL.cfgReaders">
-        <xsl:variable name="strReadersHref"
-            select="$GLOBAL.cfgScript//import[cpm:polystr.equal(@as, 'readers', 'case')]/@file"/>
-        <xsl:copy-of select="document(cpm:uri.absolute(cpm:cfg.cfgFolder(), $strReadersHref))"/>
-    </xsl:variable>
-    
-    
+
+
     <!-- 
         Assembling URIs for the essential folders
     -->
-    
+
     <xsl:function name="cpm:cfg.cpmFolder">
-        <xsl:value-of select="cpm:uri.absolute(cpm:cfg.cfgFolder(), '..')"/>
+        <xsl:value-of select="cpm:cfg.uri('cpm.cfg.cpmFolder')"/>
     </xsl:function>
-    
-    <xsl:function name="cpm:cfg.defaultTmpFolder">
-        <xsl:value-of select="cpm:path.2uri($GLOBAL.default.tmpFolder, cpm:cfg.osType())"/>
+
+    <xsl:function name="cpm:cfg.userpref.tmpFolder">
+        <xsl:value-of select="cpm:cfg.uri('cpm:cfg.userpref.tmpFolder')"/>
     </xsl:function>
 
 
     <!-- 
         Assembling URIs, paths, and values for essential components
     -->
-    
+
+    <!-- Java -->
+
+    <xsl:function name="cpm:cfg.java.executable">
+        <xsl:value-of select="cpm:cfg.value('cpm.cfg.java.executable')"/>
+    </xsl:function>
+
+    <xsl:function name="cpm:cfg.java.minMemory">
+        <xsl:value-of select="cpm:cfg.value('cpm.cfg.java.minMemory')"/>
+    </xsl:function>
+
+    <xsl:function name="cpm:cfg.java.maxMemory">
+        <xsl:value-of select="cpm:cfg.value('cpm.cfg.java.maxMemory')"/>
+    </xsl:function>
+
+
     <!-- Saxon -->
-        
+
     <xsl:function name="cpm:cfg.saxon.jarClasspath">
-        <xsl:value-of select="cpm:cfg.property('saxon.jarClasspath')"/>
+        <xsl:value-of select="cpm:cfg.uri('cpm.cfg.saxon.jarClasspath')"/>
     </xsl:function>
 
     <xsl:function name="cpm:cfg.saxon.transformerFactory">
-        <xsl:value-of select="cpm:cfg.property('saxon.transformerFactory')"/>
+        <xsl:value-of select="cpm:cfg.value('cpm.cfg.saxon.transformerFactory')"/>
+    </xsl:function>
+
+    <xsl:function name="cpm:cfg.resolver.jarClasspath">
+        <xsl:value-of select="cpm:cfg.uri('cpm.cfg.resolver.jarClasspath')"/>
+    </xsl:function>
+
+
+    <!-- 
+        Accessing library or application configuration properties
+    -->
+
+    <xsl:function name="cpm:cfg.componentPropValue">
+        <xsl:param name="strComponentName"/>
+        <xsl:param name="strPropName"/>
+
+        <xsl:variable name="strGfgPropFileURI"
+            select="cpm:cfg.componentPropFileURI($strComponentName)"/>
+
+
+        <xsl:if test="unparsed-text-available($strGfgPropFileURI)">
+            <xsl:variable name="txtCfgProps" select="unparsed-text($strGfgPropFileURI)"/>
+            <xsl:value-of select="cpm:cfg.propValue($txtCfgProps, $strPropName)"/>
+        </xsl:if>
+
     </xsl:function>
 
 </xsl:stylesheet>

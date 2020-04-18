@@ -6,26 +6,25 @@
     <xsl:import href="config.xsl"/>
 
     <!-- 
-        Assembling Ant properties
+        Assembling simple Ant properties and arguments
     -->
 
+    <!-- simple <property> -->
     <xsl:function name="cpm:ant.property">
         <xsl:param name="strName"/>
         <xsl:param name="strValue"/>
         <property name="{$strName}" value="{$strValue}"/>
     </xsl:function>
-    
-    
-    <!-- 
-        Assembling CPM-specific Java tasks launching Saxon
-    -->
 
-    <!-- Assembling an Ant Java <arg> for passing an XSLT parameter to Saxon -->
-    <xsl:function name="cpm:ant.saxonParam">
+    <!-- <jvmarg> -->
+    <xsl:function name="cpm:ant.jvmArg">
         <xsl:param name="strName"/>
         <xsl:param name="strValue"/>
-        <arg>
+
+        <jvmarg>
+
             <xsl:choose>
+                
                 <xsl:when test="contains($strValue, ' ')">
                     <xsl:attribute name="line">
                         <xsl:value-of select="$strName"/>
@@ -34,6 +33,7 @@
                         <xsl:text disable-output-escaping="yes">"</xsl:text>
                     </xsl:attribute>
                 </xsl:when>
+                
                 <xsl:otherwise>
                     <xsl:attribute name="value">
                         <xsl:value-of select="$strName"/>
@@ -41,9 +41,50 @@
                         <xsl:value-of select="$strValue"/>
                     </xsl:attribute>
                 </xsl:otherwise>
+                
             </xsl:choose>
-        </arg>
+
+        </jvmarg>
+
     </xsl:function>
+
+
+    <!-- 
+        Assembling CPM-specific Java tasks launching Saxon
+    -->
+
+    <!-- Assembling an Ant Java <arg> for passing an XSLT parameter to Saxon -->
+    <xsl:function name="cpm:ant.saxonParam">
+        <xsl:param name="strName"/>
+        <xsl:param name="strValue"/>
+
+        <arg>
+
+            <xsl:choose>
+
+                <xsl:when test="contains($strValue, ' ')">
+                    <xsl:attribute name="line">
+                        <xsl:value-of select="$strName"/>
+                        <xsl:text disable-output-escaping="yes">="</xsl:text>
+                        <xsl:value-of select="$strValue"/>
+                        <xsl:text disable-output-escaping="yes">"</xsl:text>
+                    </xsl:attribute>
+                </xsl:when>
+
+                <xsl:otherwise>
+                    <xsl:attribute name="value">
+                        <xsl:value-of select="$strName"/>
+                        <xsl:text>=</xsl:text>
+                        <xsl:value-of select="$strValue"/>
+                    </xsl:attribute>
+                </xsl:otherwise>
+
+            </xsl:choose>
+
+        </arg>
+
+    </xsl:function>
+
 
     <!-- Assembling a CPM-specific Java task -->
     <xsl:template name="cpm.ant.saxon">
@@ -52,16 +93,18 @@
         <xsl:param name="strStyle"/>
         <xsl:param name="strCatalog"/>
         <xsl:param name="xmlParams"/>
+        <xsl:param name="xmlJvmArgs"/>
 
         <java classname="net.sf.saxon.Transform" fork="true">
-            <classpath path="cpm:saxon.jarClasspath"/>
-            <classpath path="cpm:resolver.jarClasspath"/>
-            <!--
-            <jvmarg value="${java.minMemory}"/>
-            <jvmarg value="${java.maxMemory}"/>
-            -->
 
+            <!-- The essential Saxon classes -->
+            <classpath path="{cpm:cfg.saxon.jarClasspath()}"/>
+
+            <!-- A catalog is provided, so a resolver is required -->
             <xsl:if test="$strCatalog != ''">
+
+                <classpath path="{cpm:cfg.resolver.jarClasspath()}"/>
+
                 <jvmarg>
                     <xsl:attribute name="line">
                         <xsl:value-of
@@ -69,16 +112,25 @@
                             disable-output-escaping="yes"/>
                     </xsl:attribute>
                 </jvmarg>
+
+                <arg value="-r:org.apache.xml.resolver.tools.CatalogResolver"/>
+                <arg value="-x:org.apache.xml.resolver.tools.ResolvingXMLReader"/>
+                <arg value="-y:org.apache.xml.resolver.tools.ResolvingXMLReader"/>
+
             </xsl:if>
-            
-            <arg value="-r:org.apache.xml.resolver.tools.CatalogResolver"/>
-            <arg value="-x:org.apache.xml.resolver.tools.ResolvingXMLReader"/>
-            <arg value="-y:org.apache.xml.resolver.tools.ResolvingXMLReader"/>
+
+            <!-- An output file, a source file, and a style -->
             <arg value="-o"/>
             <arg value="{$strOut}"/>
             <arg value="{$strIn}"/>
             <arg value="{$strStyle}"/>
-            <xsl:copy-of select="$xmlParams/arg"/>
+
+            <!-- Extra Saxon parameters (prepare them with cpm:ant.saxonParam) -->
+           <!-- <xsl:copy-of select="$xmlParams//arg"/>-->
+
+            <!-- Arguments for a Java machine -->
+            <!-- <xsl:copy-of select="$xmlJvmArgs//jvmarg"/> -->
+
         </java>
 
     </xsl:template>

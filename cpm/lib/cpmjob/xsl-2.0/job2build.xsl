@@ -58,6 +58,26 @@
 
 
     <!-- 
+        Assembling paths
+    -->
+    
+    <xsl:function name="cpm:job.inputTreePath">
+        <xsl:param name="elmTarget"/>
+        <xsl:text>imputTree.xml</xsl:text>
+    </xsl:function>
+    
+    <xsl:function name="cpm:job.outputTreePath">
+        <xsl:param name="elmTarget"/>
+        <xsl:text>outputTree.xml</xsl:text>
+    </xsl:function>
+    
+    <xsl:function name="cpm:job.taskStylePath">
+        <xsl:param name="elmTarget"/>
+        <xsl:text>taskStyle.xsl</xsl:text>
+    </xsl:function>
+    
+
+    <!-- 
         Assembling targets
     -->
 
@@ -73,15 +93,13 @@
         <target>
             <xsl:attribute name="name" select="cpm:job.styleTargetName(@name)"/>
             <xsl:attribute name="depends" select="cpm:job.inTargetName(@name)"/>
-            <xslt>
-                <!--
-                <xsl:attribute name="in" select="cpm:job.srcTreePath(.)"/>
-                <xsl:attribute name="out" select="cpm:job.outTreePath(.)"/>
-                <xsl:attribute name="style" select="cpm:job.stylePath(.)"/>                
-                <classpath path="{cpm:cfg.saxon.jarClasspath()}"/>
-                <factory name="{cpm:cfg.saxon.transformerFactory()}"/>
-                -->
-            </xslt>
+            
+            <xsl:call-template name="cpm.ant.saxon">
+                <xsl:with-param name="strIn" select="cpm:job.inputTreePath(.)"/>
+                <xsl:with-param name="strOut" select="cpm:job.outputTreePath(.)"/>
+                <xsl:with-param name="strStyle" select="cpm:job.taskStylePath(.)"/>
+            </xsl:call-template>
+            
         </target>
     </xsl:template>
 
