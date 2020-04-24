@@ -12,6 +12,24 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:cpm="http://cpmonster.com/xmlns/cpm"
     exclude-result-prefixes="cpm xs" version="2.0">
+    
+    <!-- 
+        Local utilities
+    -->
+    
+    <xsl:template match="*" mode="cpm.rhist.id">
+        <xsl:value-of select="generate-id()"/>
+    </xsl:template>
+    
+    <xsl:template match="*[@id]" mode="cpm.rhist.id">
+        <xsl:value-of select="@id"/>
+    </xsl:template>
+    
+    <xsl:function name="cpm:rhist.id">
+        <xsl:param name="elmSomeItem"/>
+        <xsl:apply-templates select="$elmSomeItem" mode="cpm.rhist.id"/>
+    </xsl:function>
+    
 
     <!-- 
         Checking a history for not containing an item 
@@ -24,11 +42,25 @@
         <xsl:value-of select="not(exists($elmHistory/item[@id = $strItemId]))"/>
     </xsl:function>
 
+    <!-- The same but you pass an element instaed of its @id -->
+    <xsl:function name="cpm:rhist.isUniqueId" as="xs:boolean">
+        <xsl:param name="elmHistory"/>
+        <xsl:param name="elmTarget"/>
+        <xsl:value-of select="not(exists($elmHistory/item[@id = cpm:rhist.id($elmTarget)]))"/>
+    </xsl:function>
+
     <!-- True if contains -->
     <xsl:function name="cpm:rhist.contains" as="xs:boolean">
         <xsl:param name="elmHistory"/>
         <xsl:param name="strItemId"/>
         <xsl:value-of select="exists($elmHistory/item[@id = $strItemId])"/>
+    </xsl:function>
+    
+    <!-- The same but you pass an element instaed of its @id -->
+    <xsl:function name="cpm:rhist.containsId" as="xs:boolean">
+        <xsl:param name="elmHistory"/>
+        <xsl:param name="elmTarget"/>
+        <xsl:value-of select="exists($elmHistory/item[@id = cpm:rhist.id($elmTarget)])"/>
     </xsl:function>
 
 
@@ -36,11 +68,11 @@
         Detecting target items
     -->
 
-    <xsl:function name="cpm:rhist.firstTarget">
+    <xsl:function name="cpm:rhist.targets" as="xs:string*">
         <xsl:param name="elmHistory"/>
         <xsl:variable name="seqLinks" select="$elmHistory//link/@ref" as="xs:string*"/>
         <xsl:variable name="seqItems" select="$elmHistory//item/@id" as="xs:string*"/>
-        <xsl:value-of select="($seqLinks[not(. = $seqItems)])[1]"/>
+        <xsl:copy-of select="$seqLinks[not(. = $seqItems)]"/>
     </xsl:function>
 
 
@@ -137,6 +169,13 @@
             <xsl:copy-of select="$elmItem"/>
         </history>
 
+    </xsl:function>
+
+    <!-- The same but you pass an element instaed of its @id -->
+    <xsl:function name="cpm:rhist.pushIdAsItem">
+        <xsl:param name="elmHistory"/>
+        <xsl:param name="elmTarget"/>
+        <xsl:copy-of select="cpm:rhist.push($elmHistory, cpm:rhist.item(cpm:rhist.id($elmTarget)))"/>
     </xsl:function>
 
 

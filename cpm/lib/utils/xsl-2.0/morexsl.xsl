@@ -19,16 +19,25 @@
     -->
 
     <!-- Detecting the @id of an element -->
+    
+    <xsl:template match="*" mode="cpm.morexsl.getgenId">
+        <xsl:value-of select="generate-id()"/>
+    </xsl:template>
+    
+    <xsl:template match="*[@id]" mode="cpm.morexsl.getgenId">
+        <xsl:value-of select="@id"/>
+    </xsl:template>
+    
     <xsl:function name="cpm:morexsl.id">
         <xsl:param name="elmItem"/>
-        <xsl:choose>
-            <xsl:when test="$elmItem/@id">
-                <xsl:value-of select="$elmItem/@id"/>
-            </xsl:when>
-            <xsl:otherwise>
-                <xsl:value-of select="generate-id($elmItem)"/>
-            </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="$elmItem" mode="cpm.morexsl.getgenId"/>
+    </xsl:function>
+    
+    <!-- Checking an element id-->
+    <xsl:function name="cpm:morexsl.checkId" as="xs:boolean">
+        <xsl:param name="elmItem"/>
+        <xsl:param name="idToBeChecked"/>
+        <xsl:value-of select="cpm:morexsl.id($elmItem) = $idToBeChecked"/>
     </xsl:function>
 
     <!-- Getting a new UUID -->
